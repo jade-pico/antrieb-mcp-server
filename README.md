@@ -68,7 +68,7 @@ Execute infrastructure automation on real VMs.
 | `cluster` | array | no | VM topology (e.g. `["ubuntu24.04 x3"]`, `["ansible-controller", "ubuntu24.04 x3"]`) |
 | `language` | string | no | `bash`, `python`, `ansible`, `dockerfile`, `terraform-aws`, `cloudformation-aws` |
 | `session_id` | string | no | Resume a previous session for iterative changes |
-| `max_iterations` | number | no | Self-correction attempts (default: 12) |
+| `max_iterations` | number | no | Self-correction attempts (default: 12). Set to 0 to just execute the code you provide without any self-correction |
 
 ### `search`
 
