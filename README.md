@@ -17,6 +17,7 @@ Add this to your MCP client config (`mcp.json`, Claude Desktop settings, etc.):
 {
   "mcpServers": {
     "antrieb": {
+      "type": "http",
       "url": "https://antrieb.sh/mcp"
     }
   }
@@ -31,6 +32,7 @@ OR
     "antrieb": {
       "url": "https://antrieb.sh/mcp",
       "headers": {
+        "type": "http",
         "Authorization": "Bearer ant_YOUR_API_KEY"
       }
     }
