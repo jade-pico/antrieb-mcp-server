@@ -1,6 +1,6 @@
 # Antrieb MCP Server
 
-**An MCP server that gives you real, instant, and full virtual machines for validating infra code.** Tell Claude (or any MCP client) to deploy a Redis cluster, configure Nginx, or set up resources on AWS and Antrieb will spin up actual VMs, generate the code, run it, and self-correct until it works.
+**An MCP server that gives you real, instant, and full virtual machines for validating infra code. (aka Vibe Coding for Infra)** Tell Claude (or any MCP client) to deploy a Redis cluster, configure Nginx, or set up resources on AWS and Antrieb will spin up actual VMs, generate the code, run it, and self-correct until it works.
 
 No containers. No sandboxes. Real VMs with full OS access, networking, and multi-node clusters.
 
