@@ -115,7 +115,7 @@ Stop a running job and destroy its VMs.
 - `centos-stream10` — CentOS Stream 10
 - `alpine` — Alpine Linux 3.23
 
-### Pre-Built Workspaces (30+)
+### Pre-Built Images
 
 Antrieb includes specialized images with pre-configured environments:
 
