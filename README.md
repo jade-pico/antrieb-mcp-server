@@ -42,6 +42,8 @@ That's it. No local install, no dependencies, no Docker.
 
 You can try without an API key or get one by logging in at https://antrieb.sh/
 
+> **Note:** Without an API key, your tasks will appear in the [community feed](https://antrieb.sh/d/antrieb-community-feed/).
+
 ## What It Does
 
 You describe what you want in natural language. Antrieb spins up real VMs, generates the code, executes it, validates the result, and self-corrects if something fails, all in one call.
@@ -68,7 +70,7 @@ Execute infrastructure automation on real VMs.
 | `cluster` | array | no | VM topology (e.g. `["ubuntu24.04 x3"]`, `["ansible-controller", "ubuntu24.04 x3"]`) |
 | `language` | string | no | `bash`, `python`, `ansible`, `dockerfile`, `terraform-aws`, `cloudformation-aws` |
 | `session_id` | string | no | Resume a previous session for iterative changes |
-| `max_iterations` | number | no | Self-correction attempts (default: 12). Set to 0 to just execute the code you provide without any self-correction |
+| `max_iterations` | number | no | Self-correction attempts (default: 12). Set to `0` to just execute the code you provide without any self-correction |
 
 ### `search`
 
