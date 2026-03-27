@@ -1,10 +1,10 @@
 # Antrieb
 
-**An MCP server that gives you real, instant, and full virtual machines for validating infra code.** Tell Claude (or any MCP client) to deploy a  node MariaDB cluster, configure Nginx, or set up resources on AWS and Antrieb will spin up actual VMs, generate the code, run it, and self-correct until it works.
+**An MCP server that gives you real, instant, and full virtual machines for validating infra code.** Tell Claude (or any MCP client) to deploy a Redis cluster, configure Nginx, or set up resources on AWS and Antrieb will spin up actual VMs, generate the code, run it, and self-correct until it works.
 
 No containers. No sandboxes. Real VMs with full OS access, networking, and multi-node clusters.
 
-Antrieb is a remote MCP server — nothing to install. Add it to your config and start deploying. Antrieb key objective is to Make AI Generated Infrastrucure Converge.
+Antrieb is a remote MCP server — nothing to install. Add it to your config and start deploying.
 
 ## Quick Start
 
@@ -15,9 +15,7 @@ Add this to your MCP client config (`mcp.json`, Claude Desktop settings, etc.):
 {
   "mcpServers": {
     "antrieb": {
-      "url": "https://antrieb.sh/mcp",
-      "headers": {
-      }
+      "url": "https://antrieb.sh/mcp"
     }
   }
 }
@@ -40,7 +38,7 @@ OR
 
 That's it. No local install, no dependencies, no Docker.
 
-You can try without API Key or get an API key by goint to https://antrieb.sh/
+You can try without an API key or get one by logging in at https://antrieb.sh/
 
 ## What It Does
 
@@ -66,9 +64,9 @@ Execute infrastructure automation on real VMs.
 |-----------|------|----------|-------------|
 | `prompt` | string | yes | What you want to build/deploy/configure |
 | `cluster` | array | no | VM topology (e.g. `["ubuntu24.04 x3"]`, `["ansible-controller", "ubuntu24.04 x3"]`) |
-| `language` | string | no | `bash`, `python`, `ansible`, `dockerfile`, `terraform-aws`, `coudformation-aws` |
+| `language` | string | no | `bash`, `python`, `ansible`, `dockerfile`, `helm` |
 | `session_id` | string | no | Resume a previous session for iterative changes |
-| `max_iterations` | number | no | Self-correction attempts (default: 12). Use 0 if you just want to execute your own code |
+| `max_iterations` | number | no | Self-correction attempts (default: 12) |
 
 ### `search`
 
@@ -117,7 +115,7 @@ Stop a running job and destroy its VMs.
 
 Antrieb includes specialized images with pre-configured environments:
 
-`helm-k3s`, `ansible-controller`, `terraform-aws`, `cloudformation-aws`,  `podman-docker`
+`helm-k3s`, `ansible-controller`, `terraform-aws`, `cloudformation-aws`, `podman-docker`
 
 Use `search` to discover all available images, or just describe what you need — Antrieb will pick the right topology.
 
@@ -151,10 +149,8 @@ Specify topology with the `cluster` parameter:
 
 // Ansible controller + 3 managed nodes
 { "cluster": ["ansible-controller", "ubuntu24.04 x3"] }
-
-
-Use it later in any cluster definition.
+```
 
 ## License
 
-APACHE 2
+Apache 2.0
