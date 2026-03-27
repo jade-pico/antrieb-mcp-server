@@ -1,12 +1,12 @@
 # Antrieb MCP Server
 
-**An MCP server that gives you real, instant, and full virtual machines for validating AI-generated infra code.** Tell Claude (or any MCP client) to generate the code to setup a LAMP stack or provision resources on AWS and Antrieb will spin up actual VMs, run the code, and self-correct until it works.
+**An MCP server that validates your AI-generated infra code on real VMs.** Tell Claude (or any MCP client) to generate the code to setup a LAMP stack or provision resources on AWS and Antrieb will spin up actual VMs, run the code, and self-correct until it works.
 
 No containers. No sandboxes. Real VMs with full OS access, networking, and multi-node clusters.
 
 Antrieb is a remote MCP server — nothing to install. Add it to your config and start deploying.
 
-**Key objective: Make AI-Generated Infrastructure Converge.**
+**Antrieb: Make AI-Generated Infrastructure Converge.**
 
 ## Quick Start
 
@@ -48,7 +48,7 @@ You can try without an API key or get one by logging in at https://antrieb.sh/
 
 ## What It Does
 
-You describe what you want in natural language. Antrieb spins up real VMs, generates the code, executes it, validates the result, and self-corrects if something fails, all in one call.
+You describe what you want in natural language. Your LLM generates code,  Antrieb spins up real VMs, executes it, validates the result, and self-corrects if something fails, all in one call.
 
 ```
 "Write a bash script that sets up a Node.js Express hello world app with PM2 then validate it on antrieb with 1 Ubuntu node"
