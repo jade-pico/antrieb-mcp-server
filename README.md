@@ -1,6 +1,6 @@
 # Antrieb MCP Server
 
-**An MCP server that gives you real, instant, and full virtual machines for validating infra code (aka Vibe Coding for Infra).** Tell Claude (or any MCP client) to deploy a Redis cluster, configure Nginx, or set up resources on AWS and Antrieb will spin up actual VMs, generate the code, run it, and self-correct until it works.
+**An MCP server that gives you real, instant, and full virtual machines for validating AI-generated infra code.** Tell Claude (or any MCP client) to generate the code to setup a LAMP stack or provision resources on AWS and Antrieb will spin up actual VMs, run the code, and self-correct until it works.
 
 No containers. No sandboxes. Real VMs with full OS access, networking, and multi-node clusters.
 
@@ -51,9 +51,9 @@ You can try without an API key or get one by logging in at https://antrieb.sh/
 You describe what you want in natural language. Antrieb spins up real VMs, generates the code, executes it, validates the result, and self-corrects if something fails, all in one call.
 
 ```
-"Set up a Node.js Express hello world app with PM2 on 1 Ubuntu node"
-"Create 2 t3.micro EC2 instances behind a Network Load Balancer using Terraform"
-"Use Ansible to set up Prometheus and node_exporter on 3 nodes"
+"Write a bash script that sets up a Node.js Express hello world app with PM2 then validate it on antrieb with 1 Ubuntu node"
+"Write a terraform stack that Creates 2 t3.micro EC2 instances behind a Network Load Balancer and validate it on Antrieb"
+""Write an  Ansible playbook to set up Prometheus and node_exporter on 3 nodes then validate on Antrieb"
 ```
 
 Every execution returns a live monitoring dashboard so you can watch it happen in real time.
@@ -72,7 +72,7 @@ Execute infrastructure automation on real VMs.
 | `cluster` | array | no | VM topology (e.g. `["ubuntu24.04 x3"]`, `["ansible-controller", "ubuntu24.04 x3"]`) |
 | `language` | string | no | `bash`, `python`, `ansible`, `dockerfile`, `terraform-aws`, `cloudformation-aws` |
 | `session_id` | string | no | Resume a previous session for iterative changes |
-| `max_iterations` | number | no | Self-correction attempts (default: 12). Set to `0` to just execute the code you provide without any self-correction |
+
 
 ### `search`
 
