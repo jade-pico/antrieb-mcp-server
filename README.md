@@ -1,1 +1,160 @@
-# antrieb-mcp-server
+# Antrieb
+
+**An MCP server that gives you real, instant, and full virtual machines for validating infra code.** Tell Claude (or any MCP client) to deploy a  node MariaDB cluster, configure Nginx, or set up resources on AWS and Antrieb will spin up actual VMs, generate the code, run it, and self-correct until it works.
+
+No containers. No sandboxes. Real VMs with full OS access, networking, and multi-node clusters.
+
+Antrieb is a remote MCP server — nothing to install. Add it to your config and start deploying. Antrieb key objective is to Make AI Generated Infrastrucure Converge.
+
+## Quick Start
+
+Add this to your MCP client config (`mcp.json`, Claude Desktop settings, etc.):
+
+
+```json
+{
+  "mcpServers": {
+    "antrieb": {
+      "url": "https://antrieb.sh/mcp",
+      "headers": {
+      }
+    }
+  }
+}
+```
+
+OR
+
+```json
+{
+  "mcpServers": {
+    "antrieb": {
+      "url": "https://antrieb.sh/mcp",
+      "headers": {
+        "Authorization": "Bearer ant_YOUR_API_KEY"
+      }
+    }
+  }
+}
+```
+
+That's it. No local install, no dependencies, no Docker.
+
+You can try without API Key or get an API key by goint to https://antrieb.sh/
+
+## What It Does
+
+You describe what you want in natural language. Antrieb spins up real VMs, generates the code, executes it, validates the result, and self-corrects if something fails, all in one call.
+
+```
+"Set up a Node.js Express hello world app with PM2 on 1 Ubuntu node"
+"Create 2 t3.micro EC2 instances behind a Network Load Balancer using Terraform"
+"Use Ansible to set up Prometheus and node_exporter on 3 nodes"
+```
+
+Every execution returns a live monitoring dashboard so you can watch it happen in real time.
+
+## Tools
+
+Antrieb exposes 5 MCP tools:
+
+### `run`
+
+Execute infrastructure automation on real VMs.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `prompt` | string | yes | What you want to build/deploy/configure |
+| `cluster` | array | no | VM topology (e.g. `["ubuntu24.04 x3"]`, `["ansible-controller", "ubuntu24.04 x3"]`) |
+| `language` | string | no | `bash`, `python`, `ansible`, `dockerfile`, `terraform-aws`, `coudformation-aws` |
+| `session_id` | string | no | Resume a previous session for iterative changes |
+| `max_iterations` | number | no | Self-correction attempts (default: 12). Use 0 if you just want to execute your own code |
+
+### `search`
+
+Find available VM images and workspaces.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `keywords` | string | no | Search by name, description, or tags |
+
+### `status`
+
+Monitor a running job. Supports long-polling.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `job_id` | string | no | Job ID from a previous `run` |
+| `timeout` | number | no | Long-poll timeout in ms |
+
+### `files`
+
+Download files from a completed session.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `session_id` | string | yes | Session ID |
+| `filenames` | array | yes | Files to retrieve |
+
+### `cancel`
+
+Stop a running job and destroy its VMs.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `job_id` | string | yes | Job to cancel |
+
+## Available Environments
+
+### Base Images
+- `ubuntu24.04` — Ubuntu 24.04 LTS
+- `almalinux9` — AlmaLinux 9
+- `archlinux` — Arch Linux
+- `centos-stream10` — CentOS Stream 10
+- `alpine` — Alpine Linux 3.23
+
+### Pre-Built Workspaces (30+)
+
+Antrieb includes specialized images with pre-configured environments:
+
+`helm-k3s`, `ansible-controller`, `terraform-aws`, `cloudformation-aws`,  `podman-docker`
+
+Use `search` to discover all available images, or just describe what you need — Antrieb will pick the right topology.
+
+## How It Works
+
+1. You call `run` with a natural language prompt
+2. Antrieb provisions VMs; each VM in less than a second.
+3. A specialist LLM generates the automation code
+4. Code executes on the real VMs
+5. If something fails, Antrieb reads the error, rewrites the code, and retries
+6. You get back the result, generated files, and a monitoring dashboard
+
+Typical end-to-end for a 3-node cluster: **under 2 seconds** for VM provisioning, plus LLM and execution time.
+
+## Monitoring
+
+Every `run` returns a `telemetry_url` pointing to a Grafana dashboard with:
+
+- Real-time execution timeline
+- Generated files with syntax highlighting
+- Per-node output logs
+- LLM-generated digest of what happened
+
+## Multi-Node Clusters
+
+Specify topology with the `cluster` parameter:
+
+```json
+// 3 identical Ubuntu VMs
+{ "cluster": ["ubuntu24.04 x3"] }
+
+// Ansible controller + 3 managed nodes
+{ "cluster": ["ansible-controller", "ubuntu24.04 x3"] }
+
+
+Use it later in any cluster definition.
+
+## License
+
+APACHE 2
