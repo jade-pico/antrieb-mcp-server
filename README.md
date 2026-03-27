@@ -4,7 +4,7 @@
 
 No containers. No sandboxes. Real VMs with full OS access, networking, and multi-node clusters.
 
-Antrieb is a remote MCP server — nothing to install. Add it to your config and start deploying.
+Antrieb is a remote MCP server, thus nothing to install. Add it to your config and start deploying.
 
 **Antrieb: Make AI-Generated Infrastructure Converge.**
 
