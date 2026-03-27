@@ -6,6 +6,8 @@ No containers. No sandboxes. Real VMs with full OS access, networking, and multi
 
 Antrieb is a remote MCP server — nothing to install. Add it to your config and start deploying.
 
+**Key objective: Make AI-Generated Infrastructure Converge.**
+
 ## Quick Start
 
 Add this to your MCP client config (`mcp.json`, Claude Desktop settings, etc.):
@@ -64,7 +66,7 @@ Execute infrastructure automation on real VMs.
 |-----------|------|----------|-------------|
 | `prompt` | string | yes | What you want to build/deploy/configure |
 | `cluster` | array | no | VM topology (e.g. `["ubuntu24.04 x3"]`, `["ansible-controller", "ubuntu24.04 x3"]`) |
-| `language` | string | no | `bash`, `python`, `ansible`, `dockerfile`, `helm` |
+| `language` | string | no | `bash`, `python`, `ansible`, `dockerfile`, `terraform-aws`, `cloudformation-aws` |
 | `session_id` | string | no | Resume a previous session for iterative changes |
 | `max_iterations` | number | no | Self-correction attempts (default: 12) |
 
