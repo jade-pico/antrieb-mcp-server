@@ -8,7 +8,7 @@ Antrieb is a remote MCP server, thus nothing to install. Add it to your config a
 
 **Antrieb: Make AI-Generated Infrastructure Converge.**
 
-[![Antrieb Demo](https://img.youtube.com/vi/oB6CTjDceMI/maxresdefault.jpg)](https://www.youtu.be/oB6CTjDceMI)
+[![Antrieb Demo](https://img.youtube.com/vi/oB6CTjDceMI/maxresdefault.jpg)](https://youtu.be/oB6CTjDceMI)
 
 ## Quick Start
 
