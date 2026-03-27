@@ -10,7 +10,7 @@ Antrieb is a remote MCP server — nothing to install. Add it to your config and
 
 ## Quick Start
 
-Add this to your MCP client config (`mcp.json`, Claude Desktop settings, etc.):
+Add this to your MCP client config (`.mcp.json`, Claude Desktop settings, etc.):
 
 
 ```json
