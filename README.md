@@ -8,6 +8,8 @@ Antrieb is a remote MCP server, thus nothing to install. Add it to your config a
 
 **Antrieb: Make AI-Generated Infrastructure Converge.**
 
+[![Antrieb Demo](https://img.youtube.com/vi/oB6CTjDceMI/maxresdefault.jpg)](https://www.youtube.com/watch?v=oB6CTjDceMI)
+
 ## Quick Start
 
 Add this to your MCP client config (`.mcp.json`, Claude Desktop settings, etc.):
@@ -64,11 +66,11 @@ Antrieb exposes 5 MCP tools:
 
 ### `run`
 
-Execute infrastructure automation on real VMs.
+Validate infrastructure code on real VMs.
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
-| `prompt` | string | yes | What you want to build/deploy/configure |
+| `prompt` | string | yes | The code and intent to validate |
 | `cluster` | array | no | VM topology (e.g. `["ubuntu24.04 x3"]`, `["ansible-controller", "ubuntu24.04 x3"]`) |
 | `language` | string | no | `bash`, `python`, `ansible`, `dockerfile`, `terraform-aws`, `cloudformation-aws` |
 | `session_id` | string | no | Resume a previous session for iterative changes |
