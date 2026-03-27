@@ -76,7 +76,7 @@ Execute infrastructure automation on real VMs.
 
 ### `search`
 
-Find available VM images and workspaces.
+Find available VM images.
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -123,18 +123,17 @@ Antrieb includes specialized images with pre-configured environments:
 
 `helm-k3s`, `ansible-controller`, `terraform-aws`, `cloudformation-aws`, `podman-docker`
 
-Use `search` to discover all available images, or just describe what you need — Antrieb will pick the right topology.
+Use `search` to discover all available images, or just describe what you need and Antrieb will pick the right topology.
 
 ## How It Works
 
-1. You call `run` with a natural language prompt
-2. Antrieb provisions VMs; each VM in less than a second.
-3. A specialist LLM generates the automation code
+1. Your LLM generates the automation code
+2. You call `run` with a the code or natural language prompt
+3. Antrieb provisions VMs; each VM in less than a second.
 4. Code executes on the real VMs
 5. If something fails, Antrieb reads the error, rewrites the code, and retries
 6. You get back the result, generated files, and a monitoring dashboard
 
-Typical end-to-end for a 3-node cluster: **under 2 seconds** for VM provisioning, plus LLM and execution time.
 
 ## Monitoring
 
