@@ -136,6 +136,8 @@ Typical end-to-end for a 3-node cluster: **under 2 seconds** for VM provisioning
 
 ## Monitoring
 
+![Antrieb monitoring dashboard](./assets/etcd-cluster.png)
+
 Every `run` returns a `telemetry_url` pointing to a Grafana dashboard with:
 
 - Real-time execution timeline
