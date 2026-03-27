@@ -150,11 +150,20 @@ Every `run` returns a `telemetry_url` pointing to a Grafana dashboard with:
 Specify topology with the `cluster` parameter:
 
 ```json
-// 3 identical Ubuntu VMs
+// Shell or Python on 3 identical Ubuntu VMs
 { "cluster": ["ubuntu24.04 x3"] }
 
 // Ansible controller + 3 managed nodes
 { "cluster": ["ansible-controller", "ubuntu24.04 x3"] }
+
+// Terraform controller against real AWS
+{ "cluster": ["terraform-aws"] }
+
+// Docker or Podman
+{ "cluster": ["podman-docker"] }
+
+// Shell or Python on 3 identical Alpine VMs
+{ "cluster": ["alpine x3"] }
 ```
 
 ## License
