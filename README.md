@@ -55,7 +55,11 @@ You describe what you want in natural language. Your LLM generates the code, Ant
 
 ```
 "Write a bash script that sets up a Node.js Express hello world app with PM2 then validate it on Antrieb with 1 Ubuntu node"
+```
+```
 "Write a Terraform stack that creates 2 t3.micro EC2 instances behind a Network Load Balancer and validate it on Antrieb"
+```
+```
 "Write an Ansible playbook to set up Prometheus and node_exporter on 3 nodes then validate on Antrieb"
 ```
 
