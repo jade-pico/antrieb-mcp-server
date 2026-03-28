@@ -6,7 +6,7 @@ No containers. No sandboxes. Real VMs with full OS access, networking, and multi
 
 Antrieb is a remote MCP server, thus nothing to install. Add it to your config and start deploying. Antrieb uses its own hypervisor to control the full VM lifecycle.
 
-> **No cloud account required.** Antrieb runs entirely on its own infrastructure, including real AWS provisioning. The `terraform-aws` and `cloudformation-aws` images run against real AWS using Antrieb's own credentials. You never don't need to supply yours.
+> **No credentials or cloud account required.** Antrieb runs entirely on its own infrastructure, including real AWS provisioning. The `terraform-aws` and `cloudformation-aws` images run against real AWS using Antrieb's own credentials. You never don't need to supply yours.
 
 **Antrieb: Make AI-Generated Infrastructure Converge.**
 
