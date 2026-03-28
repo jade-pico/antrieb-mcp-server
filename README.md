@@ -54,13 +54,13 @@ You can try without an API key or get one by logging in at https://antrieb.sh/
 You describe what you want in natural language. Your LLM generates the code, Antrieb spins up real VMs, executes it, validates the result, and self-corrects if something fails — all in one call.
 
 ```
-"Write a bash script that sets up a Node.js Express hello world app with PM2 then validate it on Antrieb with 1 Ubuntu node"
+Write a bash script that sets up a Node.js Express hello world app with PM2 then validate it on Antrieb with 1 Ubuntu node
 ```
 ```
-"Write a Terraform stack that creates 2 t3.micro EC2 instances behind a Network Load Balancer and validate it on Antrieb"
+Write a Terraform stack that creates 2 t3.micro EC2 instances behind a Network Load Balancer and validate it on Antrieb
 ```
 ```
-"Write an Ansible playbook to set up Prometheus and node_exporter on 3 nodes then validate on Antrieb"
+Write an Ansible playbook to set up Prometheus and node_exporter on 3 nodes then validate on Antrieb
 ```
 
 Every execution returns a live monitoring dashboard so you can watch it happen in real time.
