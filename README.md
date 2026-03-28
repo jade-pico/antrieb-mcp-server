@@ -1,6 +1,6 @@
 # Antrieb MCP Server
 
-**An MCP server that validates your AI-generated infra code. On real VMs.** Tell Claude (or any MCP client) to generate the code to setup a LAMP stack and Antrieb will spin up VMs, run the code, and self-correct until it works, then destroys the VMs.
+**An MCP server to run and validate your AI-generated infra code. On real VMs.** E.g. tell Claude to generate the code to setup a LAMP stack and Antrieb will spin up VMs, run the code, and self-correct until it works, then destroys the VMs.
 
 No containers. No sandboxes. Real VMs with full OS access, networking, and multi-node clusters.
 
