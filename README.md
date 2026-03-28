@@ -1,6 +1,6 @@
 # Antrieb MCP Server
 
-**An MCP server that validates your AI-generated infra code. On real VMs.** Tell Claude (or any MCP client) to generate the code to setup a LAMP stack or provision resources on AWS and Antrieb will spin up actual VMs, run the code, and self-correct until it works.
+**An MCP server that validates your AI-generated infra code. On real VMs.** Tell Claude (or any MCP client) to generate the code to setup a LAMP stack and Antrieb will spin up VMs, run the code, and self-correct until it works, then destroys the VMs.
 
 No containers. No sandboxes. Real VMs with full OS access, networking, and multi-node clusters.
 
@@ -123,7 +123,7 @@ Stop a running job and destroy its VMs.
 
 Antrieb includes specialized images with pre-configured environments:
 
-`helm-k3s`, `ansible-controller`, `terraform-aws`, `cloudformation-aws`, `podman-docker`
+ `ansible-controller`, `terraform-aws`, `cloudformation-aws`, `podman-docker`
 
 Use `search` to discover all available images, or just describe what you need and Antrieb will pick the right topology.
 
@@ -135,6 +135,7 @@ Use `search` to discover all available images, or just describe what you need an
 4. Code executes on the real VMs
 5. If something fails, Antrieb reads the error, rewrites the code, and retries
 6. You get back the result, generated files, and a monitoring dashboard
+7. Antrieb destroys the VMs
 
 ## Monitoring
 
