@@ -4,7 +4,9 @@
 
 No containers. No sandboxes. Real VMs with full OS access, networking, and multi-node clusters.
 
-Antrieb is a remote MCP server, thus nothing to install. Add it to your config and start deploying.
+Antrieb is a remote MCP server, thus nothing to install. Add it to your config and start deploying. Antrieb uses its own hypervisor to control the full VM lifecycle.
+
+> **No cloud account required.** Antrieb runs entirely on its own infrastructure, including real AWS provisioning. The `terraform-aws` and `cloudformation-aws` images run against real AWS using Antrieb's own credentials. You never don't need to supply yours.
 
 **Antrieb: Make AI-Generated Infrastructure Converge.**
 
@@ -13,7 +15,6 @@ Antrieb is a remote MCP server, thus nothing to install. Add it to your config a
 ## Quick Start
 
 Add this to your MCP client config (`.mcp.json`, Claude Desktop settings, etc.):
-
 
 ```json
 {
@@ -26,15 +27,15 @@ Add this to your MCP client config (`.mcp.json`, Claude Desktop settings, etc.):
 }
 ```
 
-OR
+OR with an API key:
 
 ```json
 {
   "mcpServers": {
     "antrieb": {
+      "type": "http",
       "url": "https://antrieb.sh/mcp",
       "headers": {
-        "type": "http",
         "Authorization": "Bearer ant_YOUR_API_KEY"
       }
     }
@@ -50,12 +51,12 @@ You can try without an API key or get one by logging in at https://antrieb.sh/
 
 ## What It Does
 
-You describe what you want in natural language. Your LLM generates the code,  Antrieb spins up real VMs, executes it, validates the result, and self-corrects if something fails, all in one call.
+You describe what you want in natural language. Your LLM generates the code, Antrieb spins up real VMs, executes it, validates the result, and self-corrects if something fails — all in one call.
 
 ```
-"Write a bash script that sets up a Node.js Express hello world app with PM2 then validate it on antrieb with 1 Ubuntu node"
-"Write a terraform stack that Creates 2 t3.micro EC2 instances behind a Network Load Balancer and validate it on Antrieb"
-"Write an  Ansible playbook to set up Prometheus and node_exporter on 3 nodes then validate on Antrieb"
+"Write a bash script that sets up a Node.js Express hello world app with PM2 then validate it on Antrieb with 1 Ubuntu node"
+"Write a Terraform stack that creates 2 t3.micro EC2 instances behind a Network Load Balancer and validate it on Antrieb"
+"Write an Ansible playbook to set up Prometheus and node_exporter on 3 nodes then validate on Antrieb"
 ```
 
 Every execution returns a live monitoring dashboard so you can watch it happen in real time.
@@ -74,7 +75,6 @@ Validate infrastructure code on real VMs.
 | `cluster` | array | no | VM topology (e.g. `["ubuntu24.04 x3"]`, `["ansible-controller", "ubuntu24.04 x3"]`) |
 | `language` | string | no | `bash`, `python`, `ansible`, `dockerfile`, `terraform-aws`, `cloudformation-aws` |
 | `session_id` | string | no | Resume a previous session for iterative changes |
-
 
 ### `search`
 
@@ -130,12 +130,11 @@ Use `search` to discover all available images, or just describe what you need an
 ## How It Works
 
 1. Your LLM generates the automation code
-2. You call `run` with a the code or natural language prompt
-3. Antrieb provisions VMs; each VM in less than a second.
+2. You call `run` with the code or a natural language prompt
+3. Antrieb provisions VMs — each VM in less than a second
 4. Code executes on the real VMs
 5. If something fails, Antrieb reads the error, rewrites the code, and retries
 6. You get back the result, generated files, and a monitoring dashboard
-
 
 ## Monitoring
 
