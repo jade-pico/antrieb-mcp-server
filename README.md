@@ -113,11 +113,11 @@ Stop a running job and destroy its VMs.
 ## Available Environments
 
 ### Base Images
-- `ubuntu24.04` — Ubuntu 24.04 LTS
-- `almalinux9` — AlmaLinux 9
-- `archlinux` — Arch Linux
-- `centos-stream10` — CentOS Stream 10
-- `alpine` — Alpine Linux 3.23
+- `ubuntu24.04`
+- `almalinux9`
+- `archlinux`
+- `centos-stream10` 
+- `alpine`
 
 ### Pre-Built Images
 
