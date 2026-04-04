@@ -1,20 +1,16 @@
 # Antrieb MCP Server
 
-**An MCP server that runs and validate your AI-generated infra code. On real VMs.** E.g. tell Claude to generate a shell script to setup a LAMP stack on Ubuntu and Antrieb will spin up a VM, run the script,  self-correct until it works, and finally destroys the VMs.
+**Instant clusters for AI agents. Real VMs. Real images.**
 
-No containers. No sandboxes. Real VMs with full OS access, networking, and multi-node clusters.
+Antrieb gives your AI agent direct access to real VM clusters. With Antrieb, your AI can provision multi-node clusters in under two seconds, run commands node by node, and tear everything down when you're done. No containers, no sandboxes — full Linux cloud VMs (e.g. Ubuntu, Alma, Arch, Alpine) with root access, private networking, and passwordless SSH between nodes.
 
-Antrieb is a remote MCP server, thus nothing to install. Add it to your config and start deploying. Antrieb uses its own hypervisor to control the full VM lifecycle.
+Antrieb is a remote MCP server — nothing to install. Add it to your config and start provisioning.
 
-> **No credentials or cloud account required.** Antrieb runs entirely on its own infrastructure, including real AWS provisioning. The `terraform-aws` and `cloudformation-aws` images run against real AWS using Antrieb's own credentials. You don't need to supply yours.
-
-**Antrieb: Make AI-Generated Infrastructure Converge.**
-
-[![Antrieb Demo](https://img.youtube.com/vi/oB6CTjDceMI/maxresdefault.jpg)](https://youtu.be/oB6CTjDceMI)
+> **No credentials or cloud account required.** Antrieb runs entirely on its own infrastructure. Terraform image comes with AWS credentials included, though you could always build your image and use your credentials.
 
 ## Quick Start
 
-Add this to your MCP client config (`.mcp.json`, Claude Desktop settings, etc.):
+Add this to your MCP client config (`.mcp.json`, Claude Desktop, etc.):
 
 ```json
 {
@@ -27,7 +23,7 @@ Add this to your MCP client config (`.mcp.json`, Claude Desktop settings, etc.):
 }
 ```
 
-OR with an API key:
+With an API key (get one at [antrieb.sh/dash](https://antrieb.sh/dash)):
 
 ```json
 {
@@ -43,135 +39,142 @@ OR with an API key:
 }
 ```
 
-That's it. No local install, no dependencies, no Docker.
-
-You can try without an API key or get one by logging in at https://antrieb.sh/
-
-> **Note:** Without an API key, your tasks will appear in the [community feed](https://antrieb.sh/d/antrieb-community-feed/).
-
-## What It Does
-
-You describe what you want in natural language. Your LLM generates the code, Antrieb spins up real VMs, executes it, validates the result, and self-corrects if something fails — all in one call.
-
-```
-Write a bash script that sets up a Node.js Express hello world app with PM2 then validate it on Antrieb with 1 Ubuntu node
-```
-```
-Write a Terraform stack that creates 2 t3.micro EC2 instances behind a Network Load Balancer and validate it on Antrieb
-```
-```
-Write an Ansible playbook to set up Prometheus and node_exporter on 3 nodes then validate on Antrieb
-```
-
-Every execution returns a live monitoring dashboard so you can watch it happen in real time.
-
-## Tools
-
-Antrieb exposes 5 MCP tools:
-
-### `run`
-
-Validate infrastructure code on real VMs.
-
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `prompt` | string | yes | The code and intent to validate |
-| `cluster` | array | no | VM topology (e.g. `["ubuntu24.04 x3"]`, `["ansible-controller", "ubuntu24.04 x3"]`) |
-| `language` | string | no | `bash`, `python`, `ansible`, `dockerfile`, `terraform-aws`, `cloudformation-aws` |
-| `session_id` | string | no | Resume a previous session for iterative changes |
-
-### `search`
-
-Find available VM images.
-
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `keywords` | string | no | Search by name, description, or tags |
-
-### `status`
-
-Monitor a running job. Supports long-polling.
-
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `job_id` | string | no | Job ID from a previous `run` |
-| `timeout` | number | no | Long-poll timeout in ms |
-
-### `files`
-
-Download files from a completed session.
-
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `session_id` | string | yes | Session ID |
-| `filenames` | array | yes | Files to retrieve |
-
-### `cancel`
-
-Stop a running job and destroy its VMs.
-
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `job_id` | string | yes | Job to cancel |
-
-## Available Environments
-
-### Base Images
-- `ubuntu24.04`
-- `almalinux9`
-- `archlinux`
-- `centos-stream10` 
-- `alpine`
-
-### Pre-Built Images
-
-Antrieb includes specialized images with pre-configured environments:
-
- `ansible-controller`, `terraform-aws`, `cloudformation-aws`, `podman-docker`
-
-Use `search` to discover all available images, or just describe what you need and Antrieb will pick the right topology.
+No local install, no dependencies, no Docker.
 
 ## How It Works
 
-1. Your LLM generates the automation code
-2. You call `run` with the code or a natural language prompt
-3. Antrieb provisions VMs — each VM in less than a second
-4. Code executes on the real VMs
-5. If something fails, Antrieb reads the error, rewrites the code, and retries
-6. You get back the result, generated files, and a monitoring dashboard
-7. Antrieb destroys the VMs
+Your AI agent controls real VMs through 5 tools:
 
-## Monitoring
-
-![Antrieb monitoring dashboard](./assets/etcd-cluster.png)
-
-Every `run` returns a `telemetry_url` pointing to a Grafana dashboard with:
-
-- Real-time execution timeline
-- Generated files with syntax highlighting
-- Per-node output logs
-- LLM-generated digest of what happened
-
-## Multi-Node Clusters
-
-Specify topology with the `cluster` parameter:
-
-```json
-// Shell or Python on 3 identical Ubuntu VMs
-{ "cluster": ["ubuntu24.04 x3"] }
-
-// Ansible controller + 3 managed nodes
-{ "cluster": ["ansible-controller", "ubuntu24.04 x3"] }
-
-// Terraform controller against real AWS
-{ "cluster": ["terraform-aws"] }
-
-// Docker or Podman
-{ "cluster": ["podman-docker"] }
-
-// Shell or Python on 3 identical Alpine VMs
-{ "cluster": ["alpine x3"] }
 ```
+1. provision  →  Spin up VMs (sub-second)
+2. exec       →  Run commands on any node
+3. save       →  Snapshot a node as a reusable image
+4. search     →  Discover available images and list clusters
+5. delete     →  Destroy clusters or decommission images
+```
+
+The agent drives the entire workflow — provision a cluster, install software command by command, verify each step, and iterate until it works. Antrieb provides the infrastructure; the AI provides the intelligence.
+
+### Example Workflow
+
+```
+→ → You: provision an 3 node ubuntu cluster and install nginx on all nodes
+Agent: provision(cluster: ["ubuntu24.04 x3"])
+→ { session_id: "abc12", nodes: ["node1", "node2", "node3"], provision_time_ms: 720 }
+
+Agent: exec(session_id: "abc12", node: "node1", command: "apt-get update && apt-get install -y nginx")
+→ { exit_code: 0, stdout: "..." }
+
+Agent: exec(session_id: "abc12", node: "node1", command: "systemctl start nginx && curl -s localhost")
+→ { exit_code: 0, stdout: "<html>Welcome to nginx...</html>" }
+
+Agent: save(session_id: "abc12", node: "node1", name: "my-nginx", commands: [...])
+→ { ani: "antrieb:my-nginx:v1" }
+
+Agent: delete(session_id: "abc12")
+→ { success: true }
+```
+
+## Tools
+
+### `provision`
+
+Spin up a VM cluster. Returns in under a second. Nodes get private IPs, `/etc/hosts` hostnames (`node1`, `node2`, ...), and passwordless SSH between all nodes.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `cluster` | array | yes | VM topology (e.g. `["ubuntu24.04 x3"]`) |
+
+Returns `session_id`, `nodes`, `provision_time_ms`, `ttl_seconds`, `expires_at`.
+
+### `exec`
+
+Run a shell command on a specific node. Returns stdout, stderr, and exit code.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `session_id` | string | yes | From `provision` |
+| `node` | string | yes | Node name (e.g. `"node1"`) |
+| `command` | string | yes | Shell command to execute |
+
+### `save`
+
+Save a node's current state as a reusable image. Antrieb generates build scripts and documentation automatically from the commands you provide.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `session_id` | string | yes | From `provision` |
+| `node` | string | yes | Node to save |
+| `name` | string | yes | Image name (becomes `antrieb:<name>:v1`) |
+| `commands` | array | yes | Ordered list of successful commands executed |
+
+### `search`
+
+Discover available images or list your active clusters.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `type` | string | no | `"images"` (default) or `"clusters"` |
+| `keywords` | string | no | Filter images by keyword |
+
+### `delete`
+
+Destroy a cluster or decommission an image.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `session_id` | string | no | Cluster to destroy (use `"*"` for all) |
+| `image` | string | no | Image to decommission |
+
+## Available Images
+
+### Base Images
+
+| ANI | Description |
+|-----|-------------|
+| `ubuntu24.04` | Ubuntu 24.04 LTS — apt, bash, Python 3, curl, wget, jq |
+| `almalinux9` | AlmaLinux 9 (RHEL-compatible) — dnf, bash, Python 3 |
+| `archlinux` | Arch Linux (rolling) — pacman, bash, Python 3 |
+| `centos-stream10` | CentOS Stream 10 — dnf, bash, Python 3 |
+| `alpine` | Alpine Linux 3.23 — apk, minimal, musl libc |
+
+### Pre-Built Images
+
+| ANI | Description |
+|-----|-------------|
+| `terraform-aws` | Terraform with real AWS (free-tier, Antrieb's credentials) |
+| `cloudformation-aws` | CloudFormation with real AWS |
+| `ansible-controller` | Ansible control node with collections |
+| `podman-docker` | Podman, Buildah, Skopeo |
+
+Use `search` to discover all available images with full descriptions, or just specify a distro name and Antrieb picks the right one.
+
+## Cluster Networking
+
+Every multi-node cluster gets:
+
+- **Private IPs** — each node on a shared network
+- **Hostname resolution** — `node1`, `node2`, `node3` in `/etc/hosts`
+- **Passwordless SSH** — ed25519 keys distributed to all nodes
+- **Firewall isolation** — clusters are isolated from each other
+
+```
+Agent: exec(node: "node1", command: "ssh node2 hostname")
+→ { stdout: "node2" }
+```
+
+## Custom Images
+
+Save any configured node as a reusable image:
+
+1. Provision a base image
+2. Install and configure software via `exec`
+3. Call `save` with the list of successful commands
+4. Antrieb generates `build-image.sh`, `startup.sh`, and a comprehensive description
+5. The image is immediately available for future `provision` calls
+6. Antrieb's replenisher automatically builds a pool of ready-to-use VMs from your image
+
+
 
 ## License
 
