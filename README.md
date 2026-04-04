@@ -2,17 +2,17 @@
 
 **Instant clusters for AI agents. Real VMs. Real images.**
 
-Antrieb gives your AI agent access to real VM clusters. Your AI can provision multi-node clusters in under one second per node and run commands node by node. No containers, no sandboxes, no microVMs: full cloud VMs (e.g. Ubuntu, Alma, Arch, Alpine).
+If you're troubleshooting SELinux on CentOS, you need to be able to tell your AI 'give me a CentOS node' and in under a second, have a node your AI can run commands against. Can you do that today?
 
-Most AI agents infrastructure providers offer custom distros. This works when building new apps. For the enterprise and most of the programmable real world, your AI agent must use real VMs for high fidelity. This is where Antrieb fits.
+This is where Antrieb fits. It gives your AI access to real VM clusters. Your AI can provision multi-node clusters in under a second per node and run commands node by node. Same OS, same packages, same behavior. Not a container, a microVM, or some unknown Linux distro that approximates it. Full cloud VMs (e.g. Ubuntu, Alma, Arch, Alpine).
 
-If you're troubleshooting an issue on CentOS in your company, you need to tell your AI agent "give me a CentOS node" and have it in under a second. Same OS, same packages, same behavior. Not a container, a microVM, or some unknown Linux distro that approximates it.
+Most AI agent infrastructure providers offer custom distros. This works when building new apps. For the enterprise and most of the programmable real world, your AI agent must use real VMs for high fidelity. 
 
 Root access, private networking, and passwordless SSH between nodes.
 
 Antrieb is a remote MCP server — nothing to install. Add it to your config and start provisioning.
 
-> **No credentials or cloud account required.** Antrieb runs entirely on its own infrastructure. Terraform image comes with AWS credentials included, though you could always build your image and use your credentials.
+> **No credentials or cloud account required.** Antrieb runs entirely on its own infrastructure.
 
 ## Quick Start
 
