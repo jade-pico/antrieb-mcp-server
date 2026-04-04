@@ -101,7 +101,7 @@ Run a shell command on a specific node. Returns stdout, stderr, and exit code.
 
 ### `save`
 
-Save a node's current state as a reusable image. Antrieb generates build scripts and documentation automatically from the commands you provide.
+Save a node's current state as a reusable image. Antrieb generates build scripts and documentation from  commands and prompt.
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -130,7 +130,7 @@ Destroy a cluster or decommission an image.
 
 ## Available Images
 
-### Base Images
+### Example Base Images
 
 | ANI | Description |
 |-----|-------------|
@@ -140,7 +140,7 @@ Destroy a cluster or decommission an image.
 | `centos-stream10` | CentOS Stream 10 — dnf, bash, Python 3 |
 | `alpine` | Alpine Linux 3.23 — apk, minimal, musl libc |
 
-### Pre-Built Images
+### Example Stack Images
 
 | ANI | Description |
 |-----|-------------|
