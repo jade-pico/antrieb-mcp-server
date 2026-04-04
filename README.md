@@ -47,6 +47,8 @@ With an API key (get one at [antrieb.sh/dash](https://antrieb.sh/dash)):
 
 No local install, no dependencies, no Docker.
 
+> **Note:** You can try Antrieb without an API key, but you won't be able to view your command history or create custom images. Get a free key at [antrieb.sh/dash](https://antrieb.sh/dash).
+
 ## How It Works
 
 Your AI agent controls real VMs through 5 tools:
