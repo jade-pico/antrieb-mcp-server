@@ -2,7 +2,11 @@
 
 **Instant clusters for AI agents. Real VMs. Real images.**
 
-Antrieb gives your AI agent direct access to real VM clusters. Your AI can provision multi-node clusters in under one second per node, run commands node by node, and tear everything down when it is done. No containers, no sandboxes, no microvm: full cloud VMs (e.g. Ubuntu, Alma, Arch, Alpine) with root access, private networking, and passwordless SSH between nodes.
+Antrieb gives your AI agent direct access to real VM clusters. Your AI can provision multi-node clusters in under one second per node and run commands node by node. No containers, no sandboxes, no microVMs: full cloud VMs (e.g. Ubuntu, Alma, Arch, Alpine).
+
+Most AI agents infrastructure providers offer custom distros. This works when building new apps. For the enterprise and most of the programmable real world, your AI agent must use real VMs for high fidelity. This is where Antrieb fits.
+
+Root access, private networking, and passwordless SSH between nodes.
 
 Antrieb is a remote MCP server — nothing to install. Add it to your config and start provisioning.
 
