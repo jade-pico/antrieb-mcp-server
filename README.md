@@ -4,9 +4,9 @@
 
 Say you're troubleshooting SELinux on CentOS 9 and you don't want to dirty your cluster with hallucinations. What do you do? You tell your AI: 'give me a CentOS 9 node' and in under a second, it has a clean CentOS 9 node to try fixes on. Can you do that today?
 
-This is where Antrieb fits. It gives your AI access to real VM clusters. Your AI can provision multi-node clusters in under a second per node and run commands node by node. Same OS, same packages, same behavior. Not a container, a microVM, or some unknown Linux distro that approximates it. Full cloud VMs (e.g. Ubuntu, Alma, Arch, Alpine).
+This is where Antrieb fits. It gives your AI access to real VMs. Your AI can provision multi-node clusters in under a second per node and run commands node by node. Same OS, same packages, same behavior. Not a container, a microVM, or some unknown Linux. 
 
-Most AI agent infrastructure providers offer custom distros. This works when building new apps. For the enterprise and most of the programmable real world, your AI agent must use real VMs for high fidelity. 
+Other AI agent infrastructure providers offer customized distros. This works when building new apps. For real-world infrastructure, your AI must use the same distros you run in prod: Ubuntu, Alma, Arch, Alpine.
 
 Root access, private networking, and passwordless SSH between nodes.
 
