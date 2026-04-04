@@ -85,57 +85,6 @@ Agent: delete(session_id: "abc12")
 → { success: true }
 ```
 
-## Tools
-
-### `provision`
-
-Spin up a VM cluster. Returns in under a second. Nodes get private IPs, `/etc/hosts` hostnames (`node1`, `node2`, ...), and passwordless SSH between all nodes.
-
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `cluster` | array | yes | VM topology (e.g. `["ubuntu24.04 x3"]`) |
-
-Returns `session_id`, `nodes`, `provision_time_ms`, `ttl_seconds`, `expires_at`.
-
-### `exec`
-
-Run a shell command on a specific node. Returns stdout, stderr, and exit code.
-
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `session_id` | string | yes | From `provision` |
-| `node` | string | yes | Node name (e.g. `"node1"`) |
-| `command` | string | yes | Shell command to execute |
-
-### `save`
-
-Save a node's current state as a reusable image. Antrieb generates build scripts and documentation from  commands and prompt.
-
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `session_id` | string | yes | From `provision` |
-| `node` | string | yes | Node to save |
-| `name` | string | yes | Image name (becomes `antrieb:<name>:v1`) |
-| `commands` | array | yes | Ordered list of successful commands executed |
-
-### `search`
-
-Discover available images or list your active clusters.
-
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `type` | string | no | `"images"` (default) or `"clusters"` |
-| `keywords` | string | no | Filter images by keyword |
-
-### `delete`
-
-Destroy a cluster or decommission an image.
-
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `session_id` | string | no | Cluster to destroy (use `"*"` for all) |
-| `image` | string | no | Image to decommission |
-
 ## Available Images
 
 ### Example Base Images
@@ -185,6 +134,57 @@ Save any configured node as a reusable image:
 6. Antrieb's replenisher automatically builds a pool of ready-to-use VMs from your image
 
 
+
+## Tool Reference
+
+### `provision`
+
+Spin up a VM cluster. Returns in under a second. Nodes get private IPs, `/etc/hosts` hostnames (`node1`, `node2`, ...), and passwordless SSH between all nodes.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `cluster` | array | yes | VM topology (e.g. `["ubuntu24.04 x3"]`) |
+
+Returns `session_id`, `nodes`, `provision_time_ms`, `ttl_seconds`, `expires_at`.
+
+### `exec`
+
+Run a shell command on a specific node. Returns stdout, stderr, and exit code.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `session_id` | string | yes | From `provision` |
+| `node` | string | yes | Node name (e.g. `"node1"`) |
+| `command` | string | yes | Shell command to execute |
+
+### `save`
+
+Save a node's current state as a reusable image. Antrieb generates build scripts and documentation from commands and prompt.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `session_id` | string | yes | From `provision` |
+| `node` | string | yes | Node to save |
+| `name` | string | yes | Image name (becomes `antrieb:<name>:v1`) |
+| `commands` | array | yes | Ordered list of successful commands executed |
+
+### `search`
+
+Discover available images or list your active clusters.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `type` | string | no | `"images"` (default) or `"clusters"` |
+| `keywords` | string | no | Filter images by keyword |
+
+### `delete`
+
+Destroy a cluster or decommission an image.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `session_id` | string | no | Cluster to destroy (use `"*"` for all) |
+| `image` | string | no | Image to decommission |
 
 ## License
 
