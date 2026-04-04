@@ -2,7 +2,7 @@
 
 **Instant clusters for AI agents. Real VMs. Real images.**
 
-Say you're troubleshooting SELinux on CentOS 9 and you don't want to dirty your cluster with hallucinations. What do you do? You tell your AI: 'give me a CentOS 9 node' and in under a second, it has a clean CentOS 9 node to try fixes on. Can you do that today?
+Say you're troubleshooting SELinux on CentOS 9 with a little help from AI, but you are worried about hallucinations. What do you do? You tell your AI: 'give me a CentOS 9 node' and in under a second, it has a clean CentOS 9 node to try fixes on. Can you do that today?
 
 This is where Antrieb fits. It gives your AI access to real VMs. Your AI can provision multi-node clusters in under a second per node and run commands node by node. Same OS, same packages, same behavior. Not a container, a microVM, or some unknown Linux. 
 
