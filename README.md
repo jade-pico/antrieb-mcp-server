@@ -46,11 +46,11 @@ No local install, no dependencies, no Docker.
 Your AI agent controls real VMs through 5 tools:
 
 ```
-1. provision  →  Spin up VMs (sub-second)
+1. provision  →  Spin up VMs (sub-second per VM)
 2. exec       →  Run commands on any node
 3. save       →  Snapshot a node as a reusable image
-4. search     →  Discover available images and list clusters
-5. delete     →  Destroy clusters or decommission images
+4. search     →  Discover available images / clusters
+5. delete     →  Destroy clusters / images
 ```
 
 The agent drives the entire workflow — provision a cluster, install software command by command, verify each step, and iterate until it works. Antrieb provides the infrastructure; the AI provides the intelligence.
