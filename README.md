@@ -2,7 +2,7 @@
 
 **Instant clusters for AI agents. Real VMs. Real images.**
 
-Antrieb gives your AI agent direct access to real VM clusters. With Antrieb, your AI can provision multi-node clusters in under two seconds, run commands node by node, and tear everything down when you're done. No containers, no sandboxes — full Linux cloud VMs (e.g. Ubuntu, Alma, Arch, Alpine) with root access, private networking, and passwordless SSH between nodes.
+Antrieb gives your AI agent direct access to real VM clusters. Your AI can provision multi-node clusters in under one second per node, run commands node by node, and tear everything down when it is done. No containers, no sandboxes — full Linux cloud VMs (e.g. Ubuntu, Alma, Arch, Alpine) with root access, private networking, and passwordless SSH between nodes.
 
 Antrieb is a remote MCP server — nothing to install. Add it to your config and start provisioning.
 
@@ -58,7 +58,9 @@ The agent drives the entire workflow — provision a cluster, install software c
 ### Example Workflow
 
 ```
-→ → You: provision an 3 node ubuntu cluster and install nginx on all nodes
+You: provision an 3 node ubuntu cluster and install nginx on all nodes
+
+
 Agent: provision(cluster: ["ubuntu24.04 x3"])
 → { session_id: "abc12", nodes: ["node1", "node2", "node3"], provision_time_ms: 720 }
 
