@@ -177,7 +177,7 @@ curl -s -X POST https://antrieb.sh/mcp \
 
 AI is moving into every layer of operations: cloud, on-prem, legacy systems, security, networking, and edge. Misconfiguring a cloud server is painful. Misconfiguring ten thousand edge devices in the field is catastrophic.
 
-Antrieb is the validation layer between AI and Operations. Before AI touches your environment, it validates against the real thing first. Same OS, same packages, same behavior. Not a container. Not an approximation.
+Antrieb is the validation layer between AI and Operations. Before AI touches your environment, it validates against the real thing first.
 
 
 
