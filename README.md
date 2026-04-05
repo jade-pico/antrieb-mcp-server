@@ -2,13 +2,13 @@
 
 **Instant clusters for AI agents. Real VMs. Real images.**
 
-Say you're troubleshooting SELinux on CentOS 9 with a little help from AI, but you are worried about hallucinations. What do you do? You tell your AI: 'give me a CentOS 9 node' and in under a second, it has a clean CentOS 9 node to try fixes on. Can you do that today?
+Say you're troubleshooting SELinux on CentOS 9 with a little help from AI, but you are worried about hallucinations. What do you do? You tell your AI: 'give me a CentOS 9 node' and in under a second, it has a disposable CentOS 9 node to prove the fix works before it touches your environment. Can you do that today?
 
-This is where Antrieb fits. It gives your AI access to real VMs. Your AI can provision multi-node clusters in under a second per node and run commands node by node. Same OS, same packages, same behavior. Not a container, a microVM, or some unknown Linux. 
+This is where Antrieb fits. It gives your AI access to real VMs to validate its output. Your AI can provision multi-node clusters in under a second per node and run commands node by node. Same OS, same packages, same behavior. Not a container, a microVM, or some unknown Linux.
 
-Other AI agent infrastructure providers offer customized distros. This works when building new apps. For real-world infrastructure, your AI must use the same distros you run in prod: Ubuntu, Alma, Arch, Alpine.
+Other AI agent infrastructure providers offer customized distros. This works when building new apps. For real-world infrastructure, your AI must validate against the same distros you actually run: Ubuntu, Alma, Arch, Alpine.
 
-Root access, private networking, and passwordless SSH between nodes.
+Root access, private networking, and passwordless SSH between nodes. Ten minutes per cluster. Clean slate every time.
 
 Antrieb is a remote MCP server. Nothing to install. Add it to your config and start provisioning.
 
@@ -300,7 +300,7 @@ Custom images are private by default. To share images within a team, go to your 
 
 **How is this different from E2B, Morph?**
 
-**vs E2B:** E2B is excellent for code execution sandboxes. It's optimized for running code, not infrastructure. You get a single sandbox, not a cluster, and the environment doesn't match your environment at the OS level. If you're testing infra (Ansible playbooks, systemd behavior, SELinux policies), you need the real OS and real packages.
+**vs E2B:** E2B is excellent for code execution sandboxes. It's optimized for running code, not infrastructure. You get a single sandbox, not a cluster, and the environment doesn't match yours at the OS level. If you're testing infra (Ansible playbooks, systemd behavior, SELinux policies), you need the real OS and real packages.
 
 **vs Morph Cloud:** Morph gives your agent a dev environment. Morph's devboxes are great for coding agents building and iterating on software. Antrieb is for infrastructure work, where fidelity to your actual distro matters: Ubuntu, AlmaLinux, Alpine, Arch, the same OS you actually run, not a customized devbox.
 
