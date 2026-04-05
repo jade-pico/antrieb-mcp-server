@@ -2,11 +2,9 @@
 
 **Instant clusters for AI agents. Real VMs. Real images.**
 
-Say you're troubleshooting SELinux on CentOS 9 with a little help from AI, but you are worried about hallucinations. What do you do? You tell your AI: 'give me a CentOS 9 node' and in under a second, it has a disposable CentOS 9 node to prove the fix works before it touches your environment. Can you do that today?
+Say you're troubleshooting SELinux on CentOS Stream 10 with a little help from Claude Code, but you are worried about hallucinations. What do you do? You tell it: 'give me a CentOS Stream 10 node' and in under a second, it has a disposable node to prove the fix works before it touches your environment. Can you do that today?
 
-This is where Antrieb fits. It gives your AI access to real VMs to validate its output. Your AI can provision multi-node clusters in under a second per node and run commands node by node. Same OS, same packages, same behavior. Not a container, a microVM, or some unknown Linux.
-
-Other AI agent infrastructure providers offer customized distros. This works when building new apps. For real-world infrastructure, your AI must validate against the same distros you actually run: Ubuntu, Alma, Arch, Alpine.
+This is where Antrieb fits. It gives your AI access to real VMs to validate its output. Tell it to spin up a 3 nodes and install a k3s cluster: it provisions, installs, verifies, and iterates entirely on its own. Or stay in the loop and go step by step. Either way, same OS, same packages, same behavior. Not a container, a microVM, or some unknown Linux. Your AI must validate against the same distros you actually run: CentOS Stream, Ubuntu, Alma, Arch, Alpine.
 
 Root access, private networking, and passwordless SSH between nodes. Ten minutes per cluster. Clean slate every time.
 
@@ -228,7 +226,11 @@ Destroy a cluster or decommission an image.
 
 **Why Antrieb?**
 
-Antrieb is the validation layer between AI and Operations, no matter the form factor. AI agents are powerful code generators, but they hallucinate. A single misconfigured automation can take down systems. Not from an attack, but from a small, quiet mistake in AI-generated code. Antrieb gives your agent a safe place to try first: real VMs, real distros, real behavior, without touching your environment.
+AI is moving into every layer of operations: cloud, on-prem, legacy systems, security, networking, and edge. Misconfiguring a cloud server is painful. Misconfiguring ten thousand edge devices in the field is catastrophic.
+
+Antrieb is the validation layer between AI and Operations. Before AI touches your environment, it validates against the real thing first. Same OS, same packages, same behavior. Not a container. Not an approximation.
+
+Operations takes many forms. The need to validate before you act never changes.
 
 **Is it free?**
 
