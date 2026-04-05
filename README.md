@@ -6,7 +6,7 @@ Say you're troubleshooting SELinux on CentOS 9 with a little help from AI, but y
 
 This is where Antrieb fits. It gives your AI access to real VMs. Your AI can provision multi-node clusters in under a second per node and run commands node by node. Same OS, same packages, same behavior. Not a container, a microVM, or some unknown Linux. 
 
-Other AI agent infrastructure providers offer customized distros. This works when building new apps. For real-world infrastructure, your AI must use the same distros you run in prod: Ubuntu, Alma, Arch, Alpine, CentOS Stream.
+Other AI agent infrastructure providers offer customized distros. This works when building new apps. For real-world infrastructure, your AI must use the same distros you run in prod: Ubuntu, Alma, Arch, Alpine.
 
 Root access, private networking, and passwordless SSH between nodes.
 
@@ -131,9 +131,44 @@ Save any configured node as a reusable image:
 3. Call `save` with the list of successful commands
 4. Antrieb generates `build-image.sh`, `startup.sh`, and a comprehensive description
 5. The image is immediately available for future `provision` calls
-6. Antrieb's replenisher automatically builds a pool of ready-to-use VMs from your image
 
 
+
+
+## Try It Now
+
+No MCP client needed. Just `curl`:
+
+```bash
+# 1. Provision a single Ubuntu node
+curl -s -X POST https://antrieb.sh/mcp \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"provision","arguments":{"cluster":["ubuntu24.04"]}}}'
+```
+
+```json
+→ { "session_id": "abc12...", "nodes": ["node1"], "provision_time_ms": 680 }
+```
+
+```bash
+# 2. Run a command on the node
+curl -s -X POST https://antrieb.sh/mcp \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"exec","arguments":{"session_id":"abc12...","node":"node1","command":"cat /etc/os-release | head -3"}}}'
+```
+
+```json
+→ { "node": "node1", "exit_code": 0, "stdout": "PRETTY_NAME=\"Ubuntu 24.04 LTS\"\nNAME=\"Ubuntu\"\nVERSION_ID=\"24.04\"" }
+```
+
+```bash
+# 3. Tear it down
+curl -s -X POST https://antrieb.sh/mcp \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"delete","arguments":{"session_id":"abc12..."}}}'
+```
+
+> Replace `abc12...` with the `session_id` from step 1. Add `-H "Authorization: Bearer ant_YOUR_KEY"` to use your API key.
 
 ## Tool Reference
 
@@ -185,6 +220,58 @@ Destroy a cluster or decommission an image.
 |-----------|------|----------|-------------|
 | `session_id` | string | no | Cluster to destroy (use `"*"` for all) |
 | `image` | string | no | Image to decommission |
+
+## FAQ
+
+**Is it free?**
+
+Yes, for now. We're sharing a solution to a problem we had. Every user can spin up at most two clusters simultaneously, with up to 4 nodes per cluster. If your cluster needs a controller node (e.g. Ansible), a fifth node is allowed.
+
+**How long do clusters last?**
+
+Each cluster has a TTL of 10 minutes. After that it's fully discarded — compute, networking, everything. If you ever get the same IP address as a previous session, the VM is completely fresh.
+
+**What happens to a cluster when my chat session ends?**
+
+The cluster is destroyed and the IP addresses are reused for future VMs. Your commands are logged separately and remain accessible in your dashboard.
+
+**Are my VMs isolated from other users?**
+
+Yes. Nodes within a cluster can reach each other, but a node cannot reach a node in a different cluster — including other clusters you own. To verify this yourself, tell your agent: *"Provision two single-node clusters, get each node's IP, then SSH into each and try to ping the other."* You'll see the ping fail.
+
+**Can I SSH into a node myself, not just through the agent?**
+
+No — all interactions go through the agent. Tell it what you want to do and it will do it for you. Everything is conversational.
+
+**What data is logged? Do you store my commands?**
+
+Yes. All commands are logged and made available to you in your dashboard at [antrieb.sh/dash](https://antrieb.sh/dash). Command history requires an API key.
+
+**Which MCP clients does this work with?**
+
+Cursor, Windsurf, and Claude Code. If your client supports remote MCP servers over HTTP, it should work.
+
+**Does it work with models other than Claude?**
+
+Yes. Antrieb is just an MCP server — the intelligence comes entirely from your AI agent. It works with any model your MCP client supports.
+
+**How long does a saved image take to be ready?**
+
+We target 2 minutes. The maximum is 5 minutes. 
+
+**Is my custom image private or visible to other users?**
+
+Custom images are private by default. To share images within a team, go to your profile at [antrieb.sh/dash](https://antrieb.sh/dash) and set a namespace for your organization. From that point on, all your images are accessible only to members of your org.
+
+**How is this different from just using a Docker container or GitHub Codespaces?**
+
+Three things: real VMs, agent-native design, and zero setup.
+
+Docker containers share a host kernel — you can't reliably test SELinux policies, kernel modules, systemd behavior, or distro-specific package quirks in a container. Antrieb gives your agent real VMs running the exact same OS you'd run in production.
+
+Codespaces is built for humans. You open a browser or editor, click around, and type. Antrieb is built for agents — there's no UI to navigate, no workspace to configure. Your agent provisions a cluster, runs commands, reads output, and iterates, all through tool calls in the same conversation. It's the difference between giving your AI a screenshot to click through versus a direct API.
+
+And unlike both, there's nothing to set up on your end. No cloud account, no Dockerfile, no devcontainer.json. Add one block to your MCP config and your agent can spin up a 3-node AlmaLinux cluster in under a second.
 
 ## License
 
