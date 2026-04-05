@@ -225,7 +225,11 @@ Destroy a cluster or decommission an image.
 
 **Is it free?**
 
-Yes, for now. We're sharing a solution to a problem we had. Every user can spin up at most two clusters simultaneously, with up to 4 nodes per cluster. If your cluster needs a controller node (e.g. Ansible), a fifth node is allowed.
+We're in early access and free while we figure out what people actually need. We plan to always have a free tier, and we'll give plenty of notice before anything changes.
+
+**What are the resource specs of each VM?**
+
+Each VM gets 4 vCPUs and 8 GB of RAM.
 
 **How long do clusters last?**
 
@@ -234,6 +238,18 @@ Each cluster has a TTL of 10 minutes. After that it's fully discarded — comput
 **What happens to a cluster when my chat session ends?**
 
 The cluster is destroyed and the IP addresses are reused for future VMs. Your commands are logged separately and remain accessible in your dashboard.
+
+**Are VMs truly ephemeral? Could I ever get a dirty node?**
+
+Yes, fully ephemeral. VMs are never saved or snapshotted between sessions. Once you're done, they are destroyed — gone, no undo. Every node you provision is completely fresh.
+
+**Who can see the commands running on my VMs?**
+
+Only you. No one else has access to your command history.
+
+**Can my agent accidentally expose sensitive data in command logs?**
+
+Please do not include sensitive data such as secrets or credentials in your commands. Command logs are accessible to you via the dashboard, so treat them accordingly.
 
 **Are my VMs isolated from other users?**
 
@@ -257,21 +273,26 @@ Yes. Antrieb is just an MCP server — the intelligence comes entirely from your
 
 **How long does a saved image take to be ready?**
 
-We target 2 minutes. The maximum is 5 minutes. 
+We target 2 minutes. The maximum is 5 minutes.
 
 **Is my custom image private or visible to other users?**
 
 Custom images are private by default. To share images within a team, go to your profile at [antrieb.sh/dash](https://antrieb.sh/dash) and set a namespace for your organization. From that point on, all your images are accessible only to members of your org.
 
+**How is this different from E2B, Morph?**
+
+**vs E2B** — E2B is excellent for code execution sandboxes. It's optimized for running code, not infrastructure. You get a single sandbox, not a cluster, and the environment doesn't match production at the OS level. If you're testing infra — Ansible playbooks, systemd behavior, SELinux policies, you need the real OS and real packages.
+
+**vs Morph Cloud** — Morph gives your agent a dev environment. Morph's devboxes are great for coding agents building and iterating on software. Antrieb is for infrastructure work, where fidelity to your actual distro matters: Ubuntu, AlmaLinux, Alpine, Arch, the same OS you run in prod, not a customized devbox.
+
 **How is this different from just using a Docker container or GitHub Codespaces?**
 
-Three things: real VMs, agent-native design, and zero setup.
+
 
 Docker containers share a host kernel — you can't reliably test SELinux policies, kernel modules, systemd behavior, or distro-specific package quirks in a container. Antrieb gives your agent real VMs running the exact same OS you'd run in production.
 
 Codespaces is built for humans. You open a browser or editor, click around, and type. Antrieb is built for agents — there's no UI to navigate, no workspace to configure. Your agent provisions a cluster, runs commands, reads output, and iterates, all through tool calls in the same conversation. It's the difference between giving your AI a screenshot to click through versus a direct API.
 
-And unlike both, there's nothing to set up on your end. No cloud account, no Dockerfile, no devcontainer.json. Add one block to your MCP config and your agent can spin up a 3-node AlmaLinux cluster in under a second.
 
 ## License
 
