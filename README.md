@@ -288,15 +288,15 @@ Yes. Antrieb is just an MCP server; the intelligence comes entirely from your AI
 
 **How long does a saved image take to be ready?**
 
-We target 2 minutes. The maximum is 5 minutes.
+We target 2 minutes. But it really depends on what your image does. 
 
 **Is my custom image private or visible to other users?**
 
-Custom images are private by default. To share images within a team, go to your profile at [antrieb.sh/dash](https://antrieb.sh/dash) and set a namespace for your organization. From that point on, all your images are accessible only to members of your org.
+Custom images are private by default. To share images within a team, go to your profile at [antrieb.sh/dash](https://antrieb.sh/dash) and set a namespace for your organization, then add your team to the same organization. From that point on, all your images are accessible to members of your org.
 
 **How is this different from E2B, Morph?**
 
-**vs E2B:** E2B is excellent for code execution sandboxes. It's optimized for running code, not infrastructure. You get a single sandbox, not a cluster, and the environment doesn't match production at the OS level. If you're testing infra (Ansible playbooks, systemd behavior, SELinux policies), you need the real OS and real packages.
+**vs E2B:** E2B is excellent for code execution sandboxes. It's optimized for running code, not infrastructure. You get a single sandbox, not a cluster, and the environment doesn't match production at the OS level. If you're testing infra (Ansible playbooks, systemd behavior, SELinux policies, OS Patches), you need the real OS and real packages.
 
 **vs Morph Cloud:** Morph gives your agent a dev environment. Morph's devboxes are great for coding agents building and iterating on software. Antrieb is for infrastructure work, where fidelity to your actual distro matters: Ubuntu, AlmaLinux, Alpine, Arch, the same OS you run in prod, not a customized devbox.
 
