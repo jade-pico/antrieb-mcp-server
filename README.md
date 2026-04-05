@@ -6,7 +6,7 @@ Say you're troubleshooting SELinux on CentOS 9 with a little help from AI, but y
 
 This is where Antrieb fits. It gives your AI access to real VMs. Your AI can provision multi-node clusters in under a second per node and run commands node by node. Same OS, same packages, same behavior. Not a container, a microVM, or some unknown Linux. 
 
-Other AI agent infrastructure providers offer customized distros. This works when building apps. For real-world infrastructure, your AI must use the same distros you run in prod: Ubuntu, Alma, Arch, Alpine.
+Other AI agent infrastructure providers offer customized distros. This works when building apps. For real-world infrastructure, your AI must use the same distros you run in prod: Ubuntu, CentOS, Alma, Arch, Alpine.
 
 Root access, private networking, and passwordless SSH between nodes.
 
