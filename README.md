@@ -4,7 +4,7 @@
 
 Say you're troubleshooting SELinux on CentOS Stream 10 with a little help from Claude Code, but you are worried about hallucinations. What do you do? You tell it: 'give me a CentOS Stream 10 node' and in under a second, it has a disposable node to prove the fix works before it touches your environment. Can you do that today?
 
-This is where Antrieb fits. It gives your AI access to real VMs to validate its output. Tell it to spin up a 3 nodes and install a k3s cluster: it provisions, installs, verifies, and iterates entirely on its own. Or stay in the loop and go step by step. Either way, same OS, same packages, same behavior. Not a container, a microVM, or some unknown Linux. Your AI must validate against the same distros you actually run: CentOS Stream, Ubuntu, Alma, Arch, Alpine.
+This is where Antrieb fits. It gives your AI access to real VMs to validate its output. Tell it to spin up 3 nodes and install a k3s cluster: it provisions, installs, verifies, and iterates entirely on its own. Or stay in the loop and go step by step. Either way, same OS, same packages, same behavior. Not a container, a microVM, or some unknown Linux. Your AI must validate against the same distros you actually run: CentOS Stream, Ubuntu, Alma, Arch, Alpine.
 
 Root access, private networking, and passwordless SSH between nodes. Ten minutes per cluster. Clean slate every time.
 
@@ -45,7 +45,7 @@ With an API key (get one at [antrieb.sh/dash](https://antrieb.sh/dash)):
 
 No local install, no dependencies, no Docker.
 
-> **Note:** You can try Antrieb without an API key, but you won't be able to view your command history, save custom images, or view active clusters. Get a free key at [antrieb.sh/dash](https://antrieb.sh/dash).
+> **Note:** You can try Antrieb without an API key, but you won't be able to view your command history, save custom images, or view active clusters.
 
 ## How It Works
 
@@ -64,10 +64,10 @@ The agent drives the entire workflow: provision a cluster, install software comm
 ### Example Workflow
 
 ```
-You: provision an 3 node ubuntu cluster and install nginx on all nodes
+You: provision 3 ubuntu nodes and install nginx on all nodes
 
 
-Agent: provision(cluster: ["ubuntu24.04 x3"])
+Agent: provision(cluster: ["ubuntu24.04", "ubuntu24.04", "ubuntu24.04"])
 → { session_id: "abc12", nodes: ["node1", "node2", "node3"], provision_time_ms: 720 }
 
 Agent: exec(session_id: "abc12", node: "node1", command: "apt-get update && apt-get install -y nginx")
@@ -171,57 +171,6 @@ curl -s -X POST https://antrieb.sh/mcp \
 
 > Replace `abc12...` with the `session_id` from step 1. Add `-H "Authorization: Bearer ant_YOUR_KEY"` to use your API key.
 
-## Tool Reference
-
-### `provision`
-
-Spin up a VM cluster. Returns in under a second. Nodes get private IPs, `/etc/hosts` hostnames (`node1`, `node2`, ...), and passwordless SSH between all nodes.
-
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `cluster` | array | yes | VM topology (e.g. `["ubuntu24.04 x3"]`) |
-
-Returns `session_id`, `nodes`, `provision_time_ms`, `ttl_seconds`, `expires_at`.
-
-### `exec`
-
-Run a shell command on a specific node. Returns stdout, stderr, and exit code.
-
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `session_id` | string | yes | From `provision` |
-| `node` | string | yes | Node name (e.g. `"node1"`) |
-| `command` | string | yes | Shell command to execute |
-
-### `save`
-
-Save a node's current state as a reusable image. Antrieb generates build scripts and documentation from commands and prompt.
-
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `session_id` | string | yes | From `provision` |
-| `node` | string | yes | Node to save |
-| `name` | string | yes | Image name (becomes `antrieb:<name>:v1`) |
-| `commands` | array | yes | Ordered list of successful commands executed |
-
-### `search`
-
-Discover available images or list your active clusters.
-
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `type` | string | no | `"images"` (default) or `"clusters"` |
-| `keywords` | string | no | Filter images by keyword |
-
-### `delete`
-
-Destroy a cluster or decommission an image.
-
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `session_id` | string | no | Cluster to destroy (use `"*"` for all) |
-| `image` | string | no | Image to decommission |
-
 ## FAQ
 
 **Why Antrieb?**
@@ -230,7 +179,7 @@ AI is moving into every layer of operations: cloud, on-prem, legacy systems, sec
 
 Antrieb is the validation layer between AI and Operations. Before AI touches your environment, it validates against the real thing first. Same OS, same packages, same behavior. Not a container. Not an approximation.
 
-Operations takes many forms. The need to validate before you act never changes.
+
 
 **Is it free?**
 
@@ -262,7 +211,7 @@ The cluster is destroyed and the IP addresses are reused for future VMs. Your co
 
 **Are VMs truly ephemeral? Could I ever get a dirty node?**
 
-Yes, fully ephemeral. VMs are never saved or snapshotted between sessions. Once you're done, they are destroyed. Gone, no undo. Every node you provision is completely fresh.
+Yes, fully ephemeral. VMs are never saved or snapshotted between sessions. Once you're done, they are destroyed.  Every node you provision is completely fresh.
 
 **Who can see the commands running on my VMs?**
 
@@ -312,6 +261,57 @@ Docker containers share a host kernel, so you can't reliably test SELinux polici
 
 Codespaces is built for humans. You open a browser or editor, click around, and type. Antrieb is built for agents: no UI to navigate, no workspace to configure. Your agent provisions a cluster, runs commands, reads output, and iterates, all through tool calls in the same conversation. It's the difference between giving your AI a screenshot to click through versus a direct API.
 
+
+## Tool Reference
+
+### `provision`
+
+Spin up a VM cluster.  Nodes get private IPs, `/etc/hosts` hostnames (`node1`, `node2`, ...), and passwordless SSH between all nodes.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `cluster` | array | yes | VM topology (e.g. `["ubuntu24.04", "ubuntu24.04", "ubuntu24.04"]`) |
+
+Returns `session_id`, `nodes`, `provision_time_ms`, `ttl_seconds`, `expires_at`.
+
+### `exec`
+
+Run a shell command on a specific node. Returns stdout, stderr, and exit code.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `session_id` | string | yes | From `provision` |
+| `node` | string | yes | Node name (e.g. `"node1"`) |
+| `command` | string | yes | Shell command to execute |
+
+### `save`
+
+Save a node's current state as a reusable image. Antrieb generates build scripts and documentation from commands and prompt.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `session_id` | string | yes | From `provision` |
+| `node` | string | yes | Node to save |
+| `name` | string | yes | Image name (becomes `antrieb:<name>:v1`) |
+| `commands` | array | yes | Ordered list of successful commands executed |
+
+### `search`
+
+Discover available images or list your active clusters.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `type` | string | no | `"images"` (default) or `"clusters"` |
+| `keywords` | string | no | Filter images by keyword |
+
+### `delete`
+
+Destroy a cluster or decommission an image.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `session_id` | string | no | Cluster to destroy (use `"*"` for all) |
+| `image` | string | no | Image to decommission |
 
 ## License
 
