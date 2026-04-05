@@ -10,7 +10,7 @@ Other AI agent infrastructure providers offer customized distros. This works whe
 
 Root access, private networking, and passwordless SSH between nodes.
 
-Antrieb is a remote MCP server — nothing to install. Add it to your config and start provisioning.
+Antrieb is a remote MCP server. Nothing to install. Add it to your config and start provisioning.
 
 > **No credentials or cloud account required.** Antrieb runs entirely on its own infrastructure.
 
@@ -61,7 +61,7 @@ Your AI agent controls real VMs through 5 tools:
 5. delete     →  Destroy clusters / images
 ```
 
-The agent drives the entire workflow — provision a cluster, install software command by command, verify each step, and iterate until it works. Antrieb provides the infrastructure; the AI provides the intelligence.
+The agent drives the entire workflow: provision a cluster, install software command by command, verify each step, and iterate until it works. Antrieb provides the infrastructure; the AI provides the intelligence.
 
 ### Example Workflow
 
@@ -91,11 +91,11 @@ Agent: delete(session_id: "abc12")
 
 | ANI | Description |
 |-----|-------------|
-| `ubuntu24.04` | Ubuntu 24.04 LTS — apt, bash, Python 3, curl, wget, jq |
-| `almalinux9` | AlmaLinux 9 (RHEL-compatible) — dnf, bash, Python 3 |
-| `archlinux` | Arch Linux (rolling) — pacman, bash, Python 3 |
-| `centos-stream10` | CentOS Stream 10 — dnf, bash, Python 3 |
-| `alpine` | Alpine Linux 3.23 — apk, minimal, musl libc |
+| `ubuntu24.04` | Ubuntu 24.04 LTS: apt, bash, Python 3, curl, wget, jq |
+| `almalinux9` | AlmaLinux 9 (RHEL-compatible): dnf, bash, Python 3 |
+| `archlinux` | Arch Linux (rolling): pacman, bash, Python 3 |
+| `centos-stream10` | CentOS Stream 10: dnf, bash, Python 3 |
+| `alpine` | Alpine Linux 3.23: apk, minimal, musl libc |
 
 ### Example Stack Images
 
@@ -112,11 +112,11 @@ Use `search` to discover all available images with full descriptions, or just sp
 
 Every multi-node cluster gets:
 
-- **Private IPs** — each node on a shared network
-- **Hostname resolution** — `node1`, `node2`, `node3` in `/etc/hosts`
-- **Passwordless SSH** — ed25519 keys distributed to all nodes
-- **Firewall isolation** — clusters are isolated from each other
-- **Full internet access** — nodes can reach the public internet directly (package registries, APIs, etc.)
+- **Private IPs:** each node on a shared network
+- **Hostname resolution:** `node1`, `node2`, `node3` in `/etc/hosts`
+- **Passwordless SSH:** ed25519 keys distributed to all nodes
+- **Firewall isolation:** clusters are isolated from each other
+- **Full internet access:** nodes can reach the public internet directly (package registries, APIs, etc.)
 
 ```
 Agent: exec(node: "node1", command: "ssh node2 hostname")
@@ -236,7 +236,7 @@ Each VM gets 4 vCPUs, 8 GB of RAM, and 20 GB of disk.
 
 **How many nodes can a cluster have?**
 
-Up to 4 nodes per cluster. If your topology requires a dedicated controller node — for example, an Ansible control node managing a fleet — one additional node is allowed, bringing the maximum to 5.
+Up to 4 nodes per cluster. If your topology requires a dedicated controller node (for example, an Ansible control node managing a fleet), one additional node is allowed, bringing the maximum to 5.
 
 **How many clusters can I run at once?**
 
@@ -244,11 +244,11 @@ Up to 2 concurrent clusters per account.
 
 **Do nodes have internet access?**
 
-Yes. Every node has full, direct internet access. Package managers, curl, pip, npm — all work as you'd expect.
+Yes. Every node has full, direct internet access. Package managers, curl, pip, npm: all work as you'd expect.
 
 **How long do clusters last?**
 
-Each cluster has a hard TTL of 10 minutes. After that it is fully discarded — compute, networking, everything. TTLs cannot be extended. If you ever get the same IP address as a previous session, the VM is completely fresh.
+Each cluster has a hard TTL of 10 minutes. After that it is fully discarded: compute, networking, everything. TTLs cannot be extended. If you ever get the same IP address as a previous session, the VM is completely fresh.
 
 **What happens to a cluster when my chat session ends?**
 
@@ -256,7 +256,7 @@ The cluster is destroyed and the IP addresses are reused for future VMs. Your co
 
 **Are VMs truly ephemeral? Could I ever get a dirty node?**
 
-Yes, fully ephemeral. VMs are never saved or snapshotted between sessions. Once you're done, they are destroyed — gone, no undo. Every node you provision is completely fresh.
+Yes, fully ephemeral. VMs are never saved or snapshotted between sessions. Once you're done, they are destroyed. Gone, no undo. Every node you provision is completely fresh.
 
 **Who can see the commands running on my VMs?**
 
@@ -268,11 +268,11 @@ Please do not include sensitive data such as secrets or credentials in your comm
 
 **Are my VMs isolated from other users?**
 
-Yes. Nodes within a cluster can reach each other, but a node cannot reach a node in a different cluster — including other clusters you own. To verify this yourself, tell your agent: *"Provision two single-node clusters, get each node's IP, then SSH into each and try to ping the other."* You'll see the ping fail.
+Yes. Nodes within a cluster can reach each other, but a node cannot reach a node in a different cluster, including other clusters you own. To verify this yourself, tell your agent: *"Provision two single-node clusters, get each node's IP, then SSH into each and try to ping the other."* You'll see the ping fail.
 
 **Can I SSH into a node myself, not just through the agent?**
 
-No — all interactions go through the agent. Tell it what you want to do and it will do it for you. Everything is conversational.
+No. All interactions go through the agent. Tell it what you want to do and it will do it for you. Everything is conversational.
 
 **What data is logged? Do you store my commands?**
 
@@ -284,7 +284,7 @@ Claude Desktop, Cursor, Windsurf, and Claude Code. If your client supports remot
 
 **Does it work with models other than Claude?**
 
-Yes. Antrieb is just an MCP server — the intelligence comes entirely from your AI agent. It works with any model your MCP client supports.
+Yes. Antrieb is just an MCP server; the intelligence comes entirely from your AI agent. It works with any model your MCP client supports.
 
 **How long does a saved image take to be ready?**
 
@@ -296,15 +296,15 @@ Custom images are private by default. To share images within a team, go to your 
 
 **How is this different from E2B, Morph?**
 
-**vs E2B** — E2B is excellent for code execution sandboxes. It's optimized for running code, not infrastructure. You get a single sandbox, not a cluster, and the environment doesn't match production at the OS level. If you're testing infra — Ansible playbooks, systemd behavior, SELinux policies — you need the real OS and real packages.
+**vs E2B:** E2B is excellent for code execution sandboxes. It's optimized for running code, not infrastructure. You get a single sandbox, not a cluster, and the environment doesn't match production at the OS level. If you're testing infra (Ansible playbooks, systemd behavior, SELinux policies), you need the real OS and real packages.
 
-**vs Morph Cloud** — Morph gives your agent a dev environment. Morph's devboxes are great for coding agents building and iterating on software. Antrieb is for infrastructure work, where fidelity to your actual distro matters: Ubuntu, AlmaLinux, Alpine, Arch, the same OS you run in prod, not a customized devbox.
+**vs Morph Cloud:** Morph gives your agent a dev environment. Morph's devboxes are great for coding agents building and iterating on software. Antrieb is for infrastructure work, where fidelity to your actual distro matters: Ubuntu, AlmaLinux, Alpine, Arch, the same OS you run in prod, not a customized devbox.
 
 **How is this different from just using a Docker container or GitHub Codespaces?**
 
-Docker containers share a host kernel — you can't reliably test SELinux policies, kernel modules, systemd behavior, or distro-specific package quirks in a container. Antrieb gives your agent real VMs running the exact same OS you'd run in production.
+Docker containers share a host kernel, so you can't reliably test SELinux policies, kernel modules, systemd behavior, or distro-specific package quirks in a container. Antrieb gives your agent real VMs running the exact same OS you'd run in production.
 
-Codespaces is built for humans. You open a browser or editor, click around, and type. Antrieb is built for agents — there's no UI to navigate, no workspace to configure. Your agent provisions a cluster, runs commands, reads output, and iterates, all through tool calls in the same conversation. It's the difference between giving your AI a screenshot to click through versus a direct API.
+Codespaces is built for humans. You open a browser or editor, click around, and type. Antrieb is built for agents: no UI to navigate, no workspace to configure. Your agent provisions a cluster, runs commands, reads output, and iterates, all through tool calls in the same conversation. It's the difference between giving your AI a screenshot to click through versus a direct API.
 
 
 ## License
