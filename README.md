@@ -4,7 +4,7 @@
 
 Say you're troubleshooting SELinux on CentOS Stream 10 with a little help from Claude Code, but you are worried about hallucinations. What do you do? You tell it: 'give me a CentOS Stream 10 node' and in under a second, it has a disposable node to prove the fix works before it touches your environment. Can you do that today?
 
-This is where Antrieb fits. It gives your AI access to real VMs to validate its output. Tell it to spin up 3 nodes and install a k3s cluster: it provisions, installs, verifies, and iterates entirely on its own. Or stay in the loop and go step by step. Either way, same OS, same packages, same behavior. Not a container, a microVM, or some unknown Linux. Your AI must validate against the same distros you actually run: CentOS Stream, Ubuntu, Alma, Arch, Alpine.
+This is where Antrieb fits. It gives your AI access to real VMs to validate its output. Tell it to spin up 3 nodes and install a k3s cluster: it provisions, installs, verifies, and iterates entirely on its own. Or stay in the loop and go step by step. Either way, same OS as in your environment, same packages, same behavior. Not a container, a microVM, or some unknown Linux. Your AI must validate against the same distros you actually run: CentOS Stream, Ubuntu, Alma, Arch, Alpine.
 
 Root access, private networking, and passwordless SSH between nodes. Ten minutes per cluster. Clean slate every time.
 
