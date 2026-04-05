@@ -4,7 +4,7 @@
 
 Say you're troubleshooting SELinux on CentOS Stream 10 with a little help from Claude Code, but you are worried about hallucinations. What do you do? You tell it: 'give me a CentOS Stream 10 node' and in under a second, it has a disposable node to prove the fix works before it touches your environment. Can you do that today?
 
-This is where Antrieb fits. It gives your AI access to real VMs to validate its output. Tell it to spin up 3 nodes and install a k3s cluster: it provisions, installs, verifies, and iterates entirely on its own. Or stay in the loop and go step by step. Either way, same OS as in your environment, same packages, same behavior. Not a container, a microVM, or some unknown Linux. Your AI must validate against the same distros you actually run: CentOS Stream, Ubuntu, Alma, Arch, Alpine.
+This is where Antrieb fits. It gives your AI access to real VMs to validate its output. Tell it to spin up 3 nodes and install a k3s cluster: it provisions, installs, verifies, and iterates entirely on its own. Or stay in the loop and go step by step. Either way, same OS, same packages, same behavior. Not a container, a microVM, or some unknown Linux. Your AI must validate against the same distros you actually run: CentOS Stream, Ubuntu, Alma, Arch, Alpine.
 
 Root access, private networking, and passwordless SSH between nodes. Ten minutes per cluster. Clean slate every time.
 
@@ -85,7 +85,7 @@ Agent: delete(session_id: "abc12")
 
 ## Available Images
 
-### Example Base Images
+### Base Images
 
 | ANI | Description |
 |-----|-------------|
@@ -95,7 +95,10 @@ Agent: delete(session_id: "abc12")
 | `centos-stream10` | CentOS Stream 10: dnf, bash, Python 3 |
 | `alpine` | Alpine Linux 3.23: apk, minimal, musl libc |
 
-### Example Stack Images
+### Stack Images
+
+Stack images are custom images created by enriching the base images with additional packages.
+
 
 | ANI | Description |
 |-----|-------------|
@@ -104,7 +107,7 @@ Agent: delete(session_id: "abc12")
 | `ansible-controller` | Ansible control node with collections |
 | `podman-docker` | Podman, Buildah, Skopeo |
 
-Use `search` to discover all available images with full descriptions, or just specify a distro name and Antrieb picks the right one.
+Use `search` to discover all available images with full descriptions, or just specify a distro name and Antrieb picks the right one. 
 
 ## Cluster Networking
 
@@ -177,13 +180,12 @@ curl -s -X POST https://antrieb.sh/mcp \
 
 AI is moving into every layer of operations: cloud, on-prem, legacy systems, security, networking, and edge. Misconfiguring a cloud server is painful. Misconfiguring ten thousand edge devices in the field is catastrophic.
 
-Antrieb is the validation layer between AI and Operations. Before AI touches your environment, it validates against the real thing first.
-
+Antrieb is the validation layer between AI and Operations. Before AI touches your environment, it validates against the real thing first. Same OS, same packages, same behavior. Not a container. Not an approximation.
 
 
 **Is it free?**
 
-We're in early access and free while we figure out what people actually need. We plan to always have a free tier, and we'll give plenty of notice before anything changes.
+Yes.
 
 **What are the resource specs of each VM?**
 
