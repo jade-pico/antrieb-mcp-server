@@ -1,10 +1,12 @@
 # Antrieb MCP Server
 
-**Instant clusters for AI agents. Real VMs. Real images.**
+# Antrieb MCP Server
 
-Say you're troubleshooting SELinux on CentOS Stream 10 with a little help from Claude Code, but you are worried about hallucinations. What do you do? You tell it: 'give me a CentOS Stream 10 node' and in under a second, it has a disposable node to prove the fix works before it touches your environment. Can you do that today?
+**Instant clusters for AIOps. Real VMs. Real images.**
 
-This is where Antrieb fits. It gives your AI access to real VMs to validate its output. Tell it to spin up 3 nodes and install a k3s cluster: it provisions, installs, verifies, and iterates entirely on its own. Or stay in the loop and go step by step. Either way, same OS, same packages, same behavior. Not a container, a microVM, or some unknown Linux. Your AI must validate against the same distros you actually run: CentOS Stream, Ubuntu, Alma, Arch, Alpine.
+Say you're troubleshooting SELinux on Alma with a little help from Claude Code, but you are worried about hallucinations. What do you do? You tell it: 'give me an Alma Linux VM' and in under a second, it has a disposable VM to prove the fix before it touches your environment. Can you do that today?
+
+This is where Antrieb fits. It gives your AI access to real VMs. Same OS as your environment, same packages, same behavior. Not a container, a microVM, or some unknown Linux. Your AI must validate its output against the same OS you actually run: CentOS Stream, Ubuntu, Alma, Arch, Alpine, SONiC, VyOS.
 
 Root access, private networking, and passwordless SSH between nodes. Ten minutes per cluster. Clean slate every time.
 
