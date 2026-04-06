@@ -48,7 +48,7 @@ No local install, no dependencies, no Docker.
 
 ## How It Works
 
-Your LLM  controls real VMs through 5 tools:
+Your LLM controls real VMs through 5 tools:
 
 ```
 1. provision  →  Spin up VMs (sub-second per VM)
@@ -58,7 +58,7 @@ Your LLM  controls real VMs through 5 tools:
 5. delete     →  Destroy clusters / images
 ```
 
-The agent drives the entire workflow: provision a cluster, install software command by command, verify each step, and iterate until it works. Antrieb provides the infrastructure; the LLM provides the intelligence.
+The LLM drives the entire workflow: provision a cluster, install software command by command, verify each step, and iterate until it works. Antrieb provides the infrastructure; the LLM provides the intelligence.
 
 ### Example Workflow
 
@@ -66,19 +66,19 @@ The agent drives the entire workflow: provision a cluster, install software comm
 You: provision 3 ubuntu nodes and install nginx on all nodes
 
 
-Agent: provision(cluster: ["ubuntu24.04", "ubuntu24.04", "ubuntu24.04"])
+LLM: provision(cluster: ["ubuntu24.04", "ubuntu24.04", "ubuntu24.04"])
 → { session_id: "abc12", nodes: ["node1", "node2", "node3"], provision_time_ms: 720 }
 
-Agent: exec(session_id: "abc12", node: "node1", command: "apt-get update && apt-get install -y nginx")
+LLM: exec(session_id: "abc12", node: "node1", command: "apt-get update && apt-get install -y nginx")
 → { exit_code: 0, stdout: "..." }
 
-Agent: exec(session_id: "abc12", node: "node1", command: "systemctl start nginx && curl -s localhost")
+LLM: exec(session_id: "abc12", node: "node1", command: "systemctl start nginx && curl -s localhost")
 → { exit_code: 0, stdout: "<html>Welcome to nginx...</html>" }
 
-Agent: save(session_id: "abc12", node: "node1", name: "my-nginx", commands: [...])
+LLM: save(session_id: "abc12", node: "node1", name: "my-nginx", commands: [...])
 → { ani: "antrieb:my-nginx:v1" }
 
-Agent: delete(session_id: "abc12")
+LLM: delete(session_id: "abc12")
 → { success: true }
 ```
 
