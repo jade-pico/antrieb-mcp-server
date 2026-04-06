@@ -1,12 +1,10 @@
 # Antrieb MCP Server
 
-# Antrieb MCP Server
+**Instant clusters for LLM in Ops. Real VMs. Real images.**
 
-**Instant clusters for AIOps. Real VMs. Real images.**
+Say you're troubleshooting SELinux on Alma with a little help from an LLM, but you are worried about hallucinations. What do you do? You tell it: 'give me an Alma Linux VM' and in under a second, it has a disposable VM to prove the fix before it touches your environment. Can you do that today?
 
-Say you're troubleshooting SELinux on Alma with a little help from Claude Code, but you are worried about hallucinations. What do you do? You tell it: 'give me an Alma Linux VM' and in under a second, it has a disposable VM to prove the fix before it touches your environment. Can you do that today?
-
-This is where Antrieb fits. It gives your AI access to real VMs. Same OS as your environment, same packages, same behavior. Not a container, a microVM, or some unknown Linux. Your AI must validate its output against the same OS you actually run: CentOS Stream, Ubuntu, Alma, Arch, Alpine, SONiC, VyOS.
+This is where Antrieb fits. It gives your LLM access to real VMs. Same OS as your environment, same packages, same behavior. Not a container, a microVM, or some unknown Linux. Your LLM must validate against the same OS you actually run: CentOS Stream, Ubuntu, Alma, Arch, Alpine, SONiC, VyOS.
 
 Root access, private networking, and passwordless SSH between nodes. Ten minutes per cluster. Clean slate every time.
 
@@ -51,7 +49,7 @@ No local install, no dependencies, no Docker.
 
 ## How It Works
 
-Your AI agent controls real VMs through 5 tools:
+Your LLM  controls real VMs through 5 tools:
 
 ```
 1. provision  →  Spin up VMs (sub-second per VM)
@@ -61,7 +59,7 @@ Your AI agent controls real VMs through 5 tools:
 5. delete     →  Destroy clusters / images
 ```
 
-The agent drives the entire workflow: provision a cluster, install software command by command, verify each step, and iterate until it works. Antrieb provides the infrastructure; the AI provides the intelligence.
+The agent drives the entire workflow: provision a cluster, install software command by command, verify each step, and iterate until it works. Antrieb provides the infrastructure; the LLM provides the intelligence.
 
 ### Example Workflow
 
@@ -182,7 +180,7 @@ curl -s -X POST https://antrieb.sh/mcp \
 
 AI is moving into every layer of operations: cloud, on-prem, legacy systems, security, networking, and edge. Misconfiguring a cloud server is painful. Misconfiguring ten thousand edge devices in the field is catastrophic.
 
-Antrieb is the validation layer between AI and Operations. Before AI touches your environment, it validates against the real thing first. Same OS, same packages, same behavior. Not a container. Not an approximation.
+Antrieb is the validation layer between LLMs and Operations. Before an LLM touches your environment, it validates against the real thing first. Same OS, same packages, same behavior. Not a container. Not an approximation.
 
 
 **Is it free?**
@@ -243,7 +241,7 @@ Claude Desktop, Cursor, Windsurf, and Claude Code. If your client supports remot
 
 **Does it work with models other than Claude?**
 
-Yes. Antrieb is just an MCP server; the intelligence comes entirely from your AI agent. It works with any model your MCP client supports.
+Yes. Antrieb is just an MCP server; the intelligence comes entirely from your LLM. It works with any model your MCP client supports.
 
 **How long does a saved image take to be ready?**
 
@@ -263,7 +261,7 @@ Custom images are private by default. To share images within a team, go to your 
 
 Docker containers share a host kernel, so you can't reliably test SELinux policies, kernel modules, systemd behavior, or distro-specific package quirks in a container. Antrieb gives your agent real VMs running the exact same OS you'd run in your environment.
 
-Codespaces is built for humans. You open a browser or editor, click around, and type. Antrieb is built for agents: no UI to navigate, no workspace to configure. Your agent provisions a cluster, runs commands, reads output, and iterates, all through tool calls in the same conversation. It's the difference between giving your AI a screenshot to click through versus a direct API.
+Codespaces is built for humans. You open a browser or editor, click around, and type. Antrieb is built for agents: no UI to navigate, no workspace to configure. Your agent provisions a cluster, runs commands, reads output, and iterates, all through tool calls in the same conversation. It's the difference between giving your LLM a screenshot to click through versus a direct API.
 
 
 ## Tool Reference
