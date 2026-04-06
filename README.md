@@ -1,8 +1,8 @@
 # Antrieb MCP Server
 
-**Instant clusters for LLM in Ops. Real VMs. Real images.**
+**Instant clusters for LLMs in Ops. Real VMs. Real images.**
 
-Say you're troubleshooting SELinux on Alma with a little help from an LLM, but you are worried about hallucinations. What do you do? You tell it: 'give me an Alma Linux VM' and in under a second, it has a disposable VM to prove the fix before it touches your environment. Can you do that today?
+Say you use an LLM to troubleshoot SELinux on Alma, but hallucinations worry you. What do you do? You tell the LLM: 'give me an Alma Linux VM' and in a second, it has a disposable VM to prove the fix before it breaks your environment. Can you do that today?
 
 This is where Antrieb fits. It gives your LLM access to real VMs. Same OS as your environment, same packages, same behavior. Not a container, a microVM, or some unknown Linux. Your LLM must validate against the same OS you actually run: CentOS Stream, Ubuntu, Alma, Arch, Alpine, SONiC, VyOS.
 
@@ -10,7 +10,6 @@ Root access, private networking, and passwordless SSH between nodes. Ten minutes
 
 Antrieb is a remote MCP server. Nothing to install. Add it to your config and start provisioning.
 
-> **No credentials or cloud account required.** Antrieb runs entirely on its own infrastructure.
 
 ## Quick Start
 
