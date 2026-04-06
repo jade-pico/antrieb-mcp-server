@@ -117,7 +117,7 @@ Every multi-node cluster gets:
 - **Hostname resolution:** `node1`, `node2`, `node3` in `/etc/hosts`
 - **Passwordless SSH:** ed25519 keys distributed to all nodes
 - **Firewall isolation:** clusters are isolated from each other
-- **Full internet access:** nodes can reach the public internet directly (package registries, APIs, etc.)
+- **Internet access:** nodes can reach the public internet on common ports (HTTP, HTTPS, DNS, SSH, package managers)
 
 ```
 Agent: exec(node: "node1", command: "ssh node2 hostname")
@@ -201,7 +201,7 @@ Up to 2 concurrent clusters per account.
 
 **Do nodes have internet access?**
 
-Yes. Every node has full, direct internet access. Package managers, curl, pip, npm: all work as you'd expect.
+Yes. Every node has direct internet access. Though for security reasons we only allow certain ports by default. Package managers, curl, pip, npm: all work as you'd expect.
 
 **How long do clusters last?**
 
@@ -251,15 +251,36 @@ We target 2 minutes. The maximum is 5 minutes.
 
 Custom images are private by default. To share images within a team, go to your profile at [antrieb.sh/dash](https://antrieb.sh/dash) and set a namespace for your organization. From that point on, all your images are accessible only to members of your org.
 
+**What are the limits for anonymous (no API key) usage?**
+
+Anonymous users can try Antrieb without signing up, with these restrictions:
+
+- 1 node per cluster (no multi-node)
+- 3-minute cluster TTL (vs 10 minutes with a key)
+- No internet access from VMs (egress blocked)
+- No web dashboard access or custom images
+- Rate limited per IP address
+
+These limits exist to prevent abuse while keeping the barrier to entry as low as possible. Get a free API key at [antrieb.sh/dash](https://antrieb.sh/dash) to remove them.
+
+**How does Antrieb prevent abuse?**
+
+- **Command logging and AI monitoring.** Every command executed on every node is logged. We use AI to aggressively detect and prevent abuse, including crypto mining, DDoS, spam, and unauthorized scanning.
+- **Cluster limits.** Maximum 2 concurrent clusters per user. Up to 4 nodes per cluster.
+- **Cluster-to-cluster isolation.** Nodes within a cluster can communicate. Nodes across clusters cannot, even within the same account.
+- **Egress port allowlist.** Outbound traffic is restricted to a curated set of ports (HTTP, HTTPS, DNS, SSH, package managers). Arbitrary outbound connections are blocked.
+
 **How is this different from E2B, Morph?**
 
-**vs E2B:** E2B is excellent for code execution sandboxes. It's optimized for running code, not infrastructure. You get a single sandbox, not a cluster, and the environment doesn't match yours at the OS level. If you're testing infra (Ansible playbooks, systemd behavior, SELinux policies), you need the real OS and real packages.
+**vs E2B:** E2B is excellent for code execution sandboxes. It's optimized for running code, not infrastructure. You get a single sandbox, not a cluster, and the environment doesn't match yours at the OS level. If you're testing infra (Ansible playbooks, systemd behavior, SELinux policies, network), you need the real OS and real packages.
 
-**vs Morph Cloud:** Morph gives your agent a dev environment. Morph's devboxes are great for coding agents building and iterating on software. Antrieb is for infrastructure work, where fidelity to your actual distro matters: Ubuntu, AlmaLinux, Alpine, Arch, the same OS you actually run, not a customized devbox.
+**vs Morph Cloud:** Morph gives your agent a dev environment. Morph's devboxes are great for coding agents building and iterating on software. Antrieb is for infrastructure work, where fidelity to your actual distro matters: Ubuntu, AlmaLinux, Alpine, Arch, SONiC, the same OS you actually run, not a customized devbox.
 
 **How is this different from just using a Docker container or GitHub Codespaces?**
 
 Docker containers share a host kernel, so you can't reliably test SELinux policies, kernel modules, systemd behavior, or distro-specific package quirks in a container. Antrieb gives your agent real VMs running the exact same OS you'd run in your environment.
+
+Beyond Linux distros, many network appliances and infrastructure platforms (SONiC, Cisco IOS-XE, Palo Alto, F5, Juniper) only ship as VM images or have limited container availability. When a container version exists, it is almost always a subset of the real thing: missing features, different APIs, incomplete behavior. Tracking what each vendor's containerized version actually supports becomes a problem in itself. With VMs, you run the real appliance image and get full fidelity.
 
 Codespaces is built for humans. You open a browser or editor, click around, and type. Antrieb is built for agents: no UI to navigate, no workspace to configure. Your agent provisions a cluster, runs commands, reads output, and iterates, all through tool calls in the same conversation. It's the difference between giving your LLM a screenshot to click through versus a direct API.
 
