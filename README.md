@@ -44,7 +44,7 @@ With an API key (get one at [antrieb.sh/dash](https://antrieb.sh/dash)):
 
 No local install, no dependencies, no Docker.
 
-> **Note:** You can try Antrieb without an API key, but there are [limitations](#what-are-the-limits-for-anonymous-no-api-key-usage).
+> **Note:** You can try Antrieb without an API key, but there are [limitations](#what-are-the-limits-without-an-api-key).
 
 ## How It Works
 
@@ -250,7 +250,7 @@ We target 2 minutes. The maximum is 5 minutes.
 
 Custom images are private by default. To share images within a team, go to your profile at [antrieb.sh/dash](https://antrieb.sh/dash) and set a namespace for your organization. From that point on, all your images are accessible only to members of your org.
 
-**What are the limits for anonymous (no API key) usage?**
+**What are the limits without an API key?**
 
 Anonymous users can try Antrieb without signing up, with these restrictions:
 
