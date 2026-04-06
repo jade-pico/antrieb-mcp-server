@@ -10,6 +10,7 @@ Root access, private networking, and passwordless SSH between nodes. Ten minutes
 
 Antrieb is a remote MCP server. Nothing to install. Add it to your config and start provisioning.
 
+
 ## Quick Start
 
 Add this to your MCP client config (e.g. `.mcp.json` for Claude Desktop):
@@ -43,7 +44,7 @@ With an API key (get one at [antrieb.sh/dash](https://antrieb.sh/dash)):
 
 No local install, no dependencies, no Docker.
 
-> **Note:** You can try Antrieb without an API key, but you won't be able to view your command history, save custom images, or view active clusters.
+> **Note:** You can try Antrieb without an API key, but there are [limitations](#what-are-the-limits-for-anonymous-no-api-key-usage).
 
 ## How It Works
 
