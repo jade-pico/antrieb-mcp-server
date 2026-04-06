@@ -250,7 +250,7 @@ We target 2 minutes. The maximum is 5 minutes.
 
 Custom images are private by default. To share images within a team, go to your profile at [antrieb.sh/dash](https://antrieb.sh/dash) and set a namespace for your organization. From that point on, all your images are accessible only to members of your org.
 
-**What are the limits without an API key?**
+### What are the limits without an API key?
 
 Anonymous users can try Antrieb without signing up, with these restrictions:
 
