@@ -119,7 +119,7 @@ Every multi-node cluster gets:
 - **Internet access:** nodes can reach the public internet on common ports (HTTP, HTTPS, DNS, SSH, package managers)
 
 ```
-Agent: exec(node: "node1", command: "ssh node2 hostname")
+LLM: exec(node: "node1", command: "ssh node2 hostname")
 → { stdout: "node2" }
 ```
 
@@ -218,17 +218,17 @@ Yes, fully ephemeral. VMs are never saved or snapshotted between sessions. Once 
 
 Only you. No one else has access to your command history.
 
-**Can my agent accidentally expose sensitive data in command logs?**
+**Can my LLM accidentally expose sensitive data in command logs?**
 
 Please do not include sensitive data such as secrets or credentials in your commands. Command logs are accessible to you via the dashboard, so treat them accordingly.
 
 **Are my VMs isolated from other users?**
 
-Yes. Nodes within a cluster can reach each other, but a node cannot reach a node in a different cluster, including other clusters you own. To verify this yourself, tell your agent: *"Provision two single-node clusters, get each node's IP, then SSH into each and try to ping the other."* You'll see the ping fail.
+Yes. Nodes within a cluster can reach each other, but a node cannot reach a node in a different cluster, including other clusters you own. To verify this yourself, tell your LLM: *"Provision two single-node clusters, get each node's IP, then SSH into each and try to ping the other."* You'll see the ping fail.
 
-**Can I SSH into a node myself, not just through the agent?**
+**Can I SSH into a node myself, not just through the LLM?**
 
-No. All interactions go through the agent. Tell it what you want to do and it will do it for you. Everything is conversational.
+No. All interactions go through the LLM. Tell it what you want to do and it will do it for you. Everything is conversational.
 
 **What data is logged? Do you store my commands?**
 
@@ -277,11 +277,11 @@ These limits exist to prevent abuse while keeping the barrier to entry as low as
 
 **How is this different from just using a Docker container or GitHub Codespaces?**
 
-Docker containers share a host kernel, so you can't reliably test SELinux policies, kernel modules, systemd behavior, or distro-specific package quirks in a container. Antrieb gives your agent real VMs running the exact same OS you'd run in your environment.
+Docker containers share a host kernel, so you can't reliably test SELinux policies, kernel modules, systemd behavior, or distro-specific package quirks in a container. Antrieb gives your LLM real VMs running the exact same OS you'd run in your environment.
 
 Beyond Linux distros, many network appliances and infrastructure platforms (SONiC, Cisco IOS-XE, Palo Alto, F5, Juniper) only ship as VM images or have limited container availability. When a container version exists, it is almost always a subset of the real thing: missing features, different APIs, incomplete behavior. Tracking what each vendor's containerized version actually supports becomes a problem in itself. With VMs, you run the real appliance image and get full fidelity.
 
-Codespaces is built for humans. You open a browser or editor, click around, and type. Antrieb is built for agents: no UI to navigate, no workspace to configure. Your agent provisions a cluster, runs commands, reads output, and iterates, all through tool calls in the same conversation. It's the difference between giving your LLM a screenshot to click through versus a direct API.
+Codespaces is built for humans. You open a browser or editor, click around, and type. Antrieb is built for LLMs to validate their work. Your LLM provisions a cluster, runs commands, reads output, and iterates, all through tool calls in the same conversation. It's the difference between giving your LLM a screenshot to click through versus a direct API.
 
 
 ## Tool Reference
