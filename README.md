@@ -1,6 +1,6 @@
 # Antrieb MCP Server
 
-**Instant clusters for LLMs in Ops. Real VMs. Real images.**
+**Instant clusters for LLM4Ops. Real VMs. Real images.**
 
 Say you use an LLM to troubleshoot SELinux on Alma, but hallucinations worry you. What do you do? You tell the LLM: 'give me an Alma VM' and in a second, it has a disposable VM to prove the fix before it breaks your box. Can you do that today?
 
