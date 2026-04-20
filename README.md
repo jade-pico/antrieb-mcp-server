@@ -51,11 +51,11 @@ No local install, no dependencies, no Docker.
 Your LLM controls real VMs through 5 tools:
 
 ```
-1. provision  →  Spin up VMs (sub-second per VM)
-2. exec       →  Run commands on any node
-3. save       →  Snapshot a node as a reusable image
-4. search     →  Discover available images / clusters
-5. delete     →  Destroy clusters / images
+1. provision  →  Spin up a cluster (sub-second per VM, declare custom networks and NICs)
+2. exec       →  Run commands on any node (cluster-scoped env vars auto-injected)
+3. save       →  Snapshot a node as an image, or save a runbook / network spec
+4. search     →  Discover images, runbooks, networks, or active clusters
+5. delete     →  Destroy a cluster, or decommission a saved artifact
 ```
 
 The LLM drives the entire workflow: provision a cluster, install software command by command, verify each step, and iterate until it works. Antrieb provides the infrastructure; the LLM provides the intelligence.
@@ -66,7 +66,7 @@ The LLM drives the entire workflow: provision a cluster, install software comman
 You: provision 3 ubuntu nodes and install nginx on all nodes
 
 
-LLM: provision(cluster: ["ubuntu24.04", "ubuntu24.04", "ubuntu24.04"])
+LLM: provision(cluster: ["ubuntu24.04 x3"])
 → { session_id: "abc12", nodes: ["node1", "node2", "node3"], provision_time_ms: 720 }
 
 LLM: exec(session_id: "abc12", node: "node1", command: "apt-get update && apt-get install -y nginx")
@@ -75,10 +75,10 @@ LLM: exec(session_id: "abc12", node: "node1", command: "apt-get update && apt-ge
 LLM: exec(session_id: "abc12", node: "node1", command: "systemctl start nginx && curl -s localhost")
 → { exit_code: 0, stdout: "<html>Welcome to nginx...</html>" }
 
-LLM: save(session_id: "abc12", node: "node1", name: "my-nginx", commands: [...])
+LLM: save(type: "image", session_id: "abc12", node: "node1", name: "my-nginx", commands: [...])
 → { ani: "antrieb:my-nginx:v1" }
 
-LLM: delete(session_id: "abc12")
+LLM: delete(type: "cluster", name: "abc12")
 → { success: true }
 ```
 
@@ -93,35 +93,83 @@ LLM: delete(session_id: "abc12")
 | `archlinux` | Arch Linux (rolling): pacman, bash, Python 3 |
 | `centos-stream10` | CentOS Stream 10: dnf, bash, Python 3 |
 | `alpine` | Alpine Linux 3.23: apk, minimal, musl libc |
+| `sonic` | SONiC: open-source network OS for data-center switches |
+| `vyos` | VyOS: Linux-based router / firewall with a unified CLI |
+| `opnsense` | OPNsense: FreeBSD-based firewall / router with web UI |
 
 ### Stack Images
 
 Stack images are custom images created by enriching the base images with additional packages.
 
-
 | ANI | Description |
 |-----|-------------|
-| `terraform-aws` | Terraform with real AWS (free-tier, Antrieb's credentials) |
+| `terraform-aws` | Terraform with real AWS (free-tier, Antrieb's credentials, Vault-brokered STS) |
 | `cloudformation-aws` | CloudFormation with real AWS |
 | `ansible-controller` | Ansible control node with collections |
-| `podman-docker` | Podman, Buildah, Skopeo |
+| `podman` | Podman, Buildah, Skopeo (rootless, Docker-API-compatible) |
 
-Use `search` to discover all available images with full descriptions, or just specify a distro name and Antrieb picks the right one. 
+Use `search` to discover all available images with full descriptions, or just specify a distro name and Antrieb picks the right one.
 
 ## Cluster Networking
 
-Every multi-node cluster gets:
+Every cluster gets:
 
 - **Private IPs:** each node on a shared network
 - **Hostname resolution:** `node1`, `node2`, `node3` in `/etc/hosts`
-- **Passwordless SSH:** ed25519 keys distributed to all nodes
-- **Firewall isolation:** clusters are isolated from each other
-- **Internet access:** nodes can reach the public internet on common ports (HTTP, HTTPS, DNS, SSH, package managers)
+- **Passwordless SSH:** a per-cluster ed25519 keypair distributed to all nodes
+- **Firewall isolation:** clusters are L2-isolated from each other on the host
+- **Cluster env vars in every `exec`:** `NODE_NAME`, `NODE_INDEX`, `NODE_IP`, `CLUSTER_HOSTS` (multiline `IP NAME` for every node — drop-in for `/etc/hosts`), `CLUSTER_SSH_PUBKEY`, `CLUSTER_SSH_PRIVKEY`
+- **Internet access (default network):** nodes can reach the public internet on common ports (HTTP, HTTPS, DNS, SSH, package managers)
 
 ```
 LLM: exec(node: "node1", command: "ssh node2 hostname")
 → { stdout: "node2" }
 ```
+
+### Custom Topology
+
+By default `provision` gives you one network with NAT egress and one NIC per node — fine for almost all work. When the topology itself is what you're testing (routers, isolation, multi-subnet, dual-homed nodes), declare it explicitly:
+
+```
+LLM: provision(
+  cluster: ["vyos", "ubuntu24.04", "ubuntu24.04"],
+  networks: [
+    { name: "wan", egress: true },
+    { name: "lan", cidr: "10.10.1.0/24", egress: false }
+  ],
+  nics: {
+    node1: [{ net: "wan" }, { net: "lan" }],
+    node2: [{ net: "lan" }],
+    node3: [{ net: "lan" }]
+  }
+)
+```
+
+Each network is its own isolated L2 segment with its own DHCP. CIDRs are auto-allocated when omitted. `egress: false` networks have no route to the internet.
+
+Frequently-used topology fragments can be **saved as network specs** and referenced from subsequent provisions as `@namespace/name`:
+
+```
+LLM: save(type: "network", name: "isolated-lan", egress: false, cidr: "10.50.0.0/24")
+→ { fq_name: "yourorg/isolated-lan" }
+
+LLM: provision(cluster: [...], networks: ["@yourorg/isolated-lan", { name: "wan", egress: true }])
+```
+
+## Runbooks
+
+Runbooks are the way to preserve non-trivial multi-node scenarios — "set up HA Postgres with a pgbouncer frontend", "three-node VyOS mesh with BGP", "ansible controller managing two targets". They're markdown documents with structure the LLM can execute:
+
+- `## Topology required` — cluster shape this applies to (images, networks, NICs)
+- `## Variables` — placeholders like `<LAN_SUBNET>` callers substitute at apply time
+- `## Steps` — numbered; prose explains *why*, fenced shell blocks are the actual commands, each annotated with the node it targets
+- `## Verify` — how to confirm success
+
+Save one with `save(type: "runbook", name: "...", body: "...markdown...")`. Apply one by running `search(type: "runbook", fq_name: "namespace/name")` to fetch the body, then issuing the `exec` calls it describes.
+
+Runbooks complement images: an image captures **installed state** (packages, configs baked into a qcow2). A runbook captures **a workflow** (the ordered, multi-node actions that produce a working system). Prefer runbooks for anything with more than one node, because a single image can't express coordination between VMs.
+
+> **Note:** Saving runbooks, images, and network specs requires an API key. Everything saved lives in your org's namespace; the `antrieb/*` namespace is read-only defaults.
 
 ## Custom Images
 
@@ -129,13 +177,9 @@ Save any configured node as a reusable image:
 
 1. Provision a base image
 2. Install and configure software via `exec`
-3. Call `save` with the list of successful commands
-4. Antrieb generates `build-image.sh`, `startup.sh`, and a comprehensive description
+3. Call `save(type: "image", ...)` with the list of successful commands
+4. Antrieb generates `build-image.sh`, `startup.sh`, and a description
 5. The image is immediately available for future `provision` calls
-
-> **Note:** Saving custom images requires an API key.
-
-
 
 
 ## Try It Now
@@ -168,7 +212,7 @@ curl -s -X POST https://antrieb.sh/mcp \
 # 3. Tear it down
 curl -s -X POST https://antrieb.sh/mcp \
   -H "Content-Type: application/json" \
-  -d '{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"delete","arguments":{"session_id":"abc12..."}}}'
+  -d '{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"delete","arguments":{"type":"cluster","name":"abc12..."}}}'
 ```
 
 > Replace `abc12...` with the `session_id` from step 1. Add `-H "Authorization: Bearer ant_YOUR_KEY"` to use your API key.
@@ -188,7 +232,7 @@ Yes.
 
 **What are the resource specs of each VM?**
 
-Each VM gets 4 vCPUs, 8 GB of RAM, and 20 GB of disk.
+Each VM gets 4 vCPUs, 2 GB of RAM, and 20 GB of disk.
 
 **How many nodes can a cluster have?**
 
@@ -200,7 +244,7 @@ Up to 2 concurrent clusters per account.
 
 **Do nodes have internet access?**
 
-Yes. Every node has direct internet access. Though for security reasons we only allow certain ports by default. Package managers, curl, pip, npm: all work as you'd expect.
+Yes, by default. Every node on the default network has direct internet access, though for security reasons only certain ports are allowed. Package managers, curl, pip, npm: all work as you'd expect. If you declare explicit networks with `egress: false`, nodes on those networks are fully isolated from the internet.
 
 **How long do clusters last?**
 
@@ -244,11 +288,11 @@ Yes. Antrieb is just an MCP server; the intelligence comes entirely from your LL
 
 **How long does a saved image take to be ready?**
 
-We target 2 minutes. The maximum is 5 minutes.
+We target 2 minutes. The maximum is 5 minutes. Runbooks and network specs save instantly — they're metadata, not qcow2 images.
 
-**Is my custom image private or visible to other users?**
+**Are custom images, runbooks, and network specs private?**
 
-Custom images are private by default. To share images within a team, go to your profile at [antrieb.sh/dash](https://antrieb.sh/dash) and set a namespace for your organization. From that point on, all your images are accessible only to members of your org.
+Yes, private by default. To share within a team, go to your profile at [antrieb.sh/dash](https://antrieb.sh/dash) and set a namespace for your organization. From that point on, everything you save is accessible only to members of your org.
 
 ### What are the limits without an API key?
 
@@ -257,7 +301,7 @@ Anonymous users can try Antrieb without signing up, with these restrictions:
 - 1 node per cluster (no multi-node)
 - 3-minute cluster TTL (vs 10 minutes with a key)
 - No internet access from VMs (egress blocked)
-- No web dashboard access or custom images
+- No web dashboard access, no custom images, runbooks, or network specs
 - Rate limited per IP address
 
 These limits exist to prevent abuse while keeping the barrier to entry as low as possible. Get a free API key at [antrieb.sh/dash](https://antrieb.sh/dash) to remove them.
@@ -267,7 +311,7 @@ These limits exist to prevent abuse while keeping the barrier to entry as low as
 - **Command logging and AI monitoring.** Every command executed on every node is logged. We use AI to aggressively detect and prevent abuse, including crypto mining, DDoS, spam, and unauthorized scanning.
 - **Cluster limits.** Maximum 2 concurrent clusters per user. Up to 4 nodes per cluster.
 - **Cluster-to-cluster isolation.** Nodes within a cluster can communicate. Nodes across clusters cannot, even within the same account.
-- **Egress port allowlist.** Outbound traffic is restricted to a curated set of ports (HTTP, HTTPS, DNS, SSH, package managers). Arbitrary outbound connections are blocked.
+- **Egress port allowlist.** Outbound traffic on the default network is restricted to a curated set of ports (HTTP, HTTPS, DNS, SSH, package managers). Arbitrary outbound connections are blocked. Networks declared with `egress: false` have no outbound path at all.
 
 **How is this different from E2B, Morph?**
 
@@ -288,52 +332,62 @@ Codespaces is built for humans. You open a browser or editor, click around, and 
 
 ### `provision`
 
-Spin up a VM cluster.  Nodes get private IPs, `/etc/hosts` hostnames (`node1`, `node2`, ...), and passwordless SSH between all nodes.
+Spin up a VM cluster. Returns a session handle, node names, TTL, and how long the provision took. Nodes get private IPs, `/etc/hosts` entries, and a shared ed25519 keypair for passwordless SSH.
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
-| `cluster` | array | yes | VM topology (e.g. `["ubuntu24.04", "ubuntu24.04", "ubuntu24.04"]`) |
+| `cluster` | array | yes | VM topology. Each entry is either a shorthand string (`"ubuntu24.04"` = 1 VM, `"ubuntu24.04 x3"` = 3 VMs) or an object `{image, count?}`. |
+| `networks` | array | no | Per-cluster private networks. Each is `{name, cidr?, egress?, dhcp?}` or a string `@namespace/name` referring to a saved spec. Default: one network named `default` with NAT egress. |
+| `nics` | object | no | Per-node NIC assignments keyed by node name, e.g. `{ "node1": [{"net":"lan"}] }`. Default: every node gets one NIC on the first network. |
 
 Returns `session_id`, `nodes`, `provision_time_ms`, `ttl_seconds`, `expires_at`.
 
 ### `exec`
 
-Run a shell command on a specific node. Returns stdout, stderr, and exit code.
+Run a shell command on a specific node. Returns stdout, stderr, and exit code. Every command has access to cluster env vars (`NODE_NAME`, `NODE_INDEX`, `NODE_IP`, `CLUSTER_HOSTS`, `CLUSTER_SSH_PUBKEY`, `CLUSTER_SSH_PRIVKEY`) for coordination across nodes.
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
 | `session_id` | string | yes | From `provision` |
 | `node` | string | yes | Node name (e.g. `"node1"`) |
-| `command` | string | yes | Shell command to execute |
+| `command` | string | yes | Literal shell command to execute |
 
 ### `save`
 
-Save a node's current state as a reusable image. Antrieb generates build scripts and documentation from commands and prompt.
+Persist an artifact. Saved artifacts live in your org's namespace and are immediately available to future `provision` / `search` calls.
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
-| `session_id` | string | yes | From `provision` |
-| `node` | string | yes | Node to save |
-| `name` | string | yes | Image name (becomes `antrieb:<name>:v1`) |
-| `commands` | array | yes | Ordered list of successful commands executed |
+| `type` | string | no | `"image"` (default), `"runbook"`, or `"network"` |
+| `name` | string | yes | Lowercase-and-hyphens identifier (becomes `antrieb:<name>:v1` for images, `@<namespace>/<name>` for runbooks/networks) |
+| `description` | string | no | Short human description used by search (strongly recommended for runbooks — it's what the LLM sees in browse mode) |
+| `session_id` | string | if `type=image` | Session containing the node to snapshot |
+| `node` | string | if `type=image` | Node to save |
+| `commands` | array | if `type=image` | Ordered list of successful commands executed on the node |
+| `body` | string | if `type=runbook` | Markdown document (see [Runbooks](#runbooks) for structure) |
+| `cidr` | string | if `type=network` | Optional `/24` CIDR like `"10.10.1.0/24"`. Auto-allocated if omitted. |
+| `egress` | boolean | if `type=network` | `true` = NAT to internet, `false` = isolated |
+| `dhcp` | boolean | if `type=network` | `true` = framework DHCP, `false` = bring your own |
 
 ### `search`
 
-Discover available images or list your active clusters.
+Browse catalogs, or fetch a specific artifact. Two modes: **browse** (keywords or no params → list of metadata) and **fetch** (`fq_name=namespace/name` → single artifact including full body, required for runbooks before applying them).
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
-| `type` | string | no | `"images"` (default) or `"clusters"` |
-| `keywords` | string | no | Filter images by keyword |
+| `type` | string | no | `"image"` (default), `"cluster"`, `"runbook"`, or `"network"` |
+| `keywords` | string | no | Full-text filter on name, description, and fq_name |
+| `fq_name` | string | no | Fetch a specific runbook/network/image by fully-qualified name. For runbooks, returns the full markdown body. |
+| `limit` | number | no | Max results (default 20, max 100) |
 
 ### `delete`
 
-Destroy a cluster or decommission an image.
+Destroy a cluster or decommission a saved artifact. `antrieb/*` defaults are never deletable.
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
-| `session_id` | string | no | Cluster to destroy (use `"*"` for all) |
-| `image` | string | no | Image to decommission |
+| `type` | string | yes | `"cluster"`, `"image"`, `"runbook"`, or `"network"` |
+| `name` | string | yes | `session_id` for clusters; short name or `namespace/short` fq_name for everything else |
 
 ## License
 
