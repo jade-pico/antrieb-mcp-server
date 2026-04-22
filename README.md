@@ -29,7 +29,8 @@ Click **Add**, then **Connect** and sign in. Back in your chat, try something li
 
 > *Create a 3-node Kubernetes cluster, with node1 running both as control-plane and worker, and node2/node3 as pure workers. Install nginx with 3 pods and pod anti-affinity.*
 
-Walkthrough video: <https://youtu.be/8nts8ol-yeA>
+Walkthrough video: <https://youtu.be/8nts8oI-yeA>
+
 
 ### MCP Clients (Claude Desktop, Claude Code, custom clients)
 
