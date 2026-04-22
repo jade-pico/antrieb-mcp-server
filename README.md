@@ -1,32 +1,39 @@
 # Antrieb MCP Server
 
-**Instant clusters for LLM4Ops. Real VMs. Real images.**
+**Instant disposable clusters for LLM-generated networks and infra.**
 
-Say you use an LLM to troubleshoot SELinux on Alma, but hallucinations worry you. What do you do? You tell the LLM: 'give me an Alma VM' and in a second, it has a disposable VM to prove the fix before it breaks your box. Can you do that today?
 
-This is where Antrieb fits. It gives your LLM access to real VMs. Same OS as your environment, same packages, same behavior. Not a container, a microVM, or some unknown Linux. Your LLM must validate against the same OS you actually run: CentOS Stream, Ubuntu, Alma, Arch, Alpine, SONiC, VyOS.
+Say an LLM writes a VyOS NAT config, an OpenWrt firewall rule set, or a bash script to harden a fresh CentOS box. Where does that code run before it touches anything real? Antrieb gives the LLM a disposable multi-node cluster, with real VMs and real networking, to try what it just generated. Break it, reprovision, try again. No cleanup.
 
-Root access, private networking, and passwordless SSH between nodes. Ten minutes per cluster. Clean slate every time.
+Same OS and appliances your LLM-generated code will target in production: CentOS Stream, Ubuntu, Alma, Arch, Alpine, plus network appliances (VyOS, OPNsense, SONiC, OpenWrt). Multi-network topologies with per-NIC assignment. Not a container, not a microVM, not some unknown Linux — the same kernels and packages your real fleet runs.
+
+Root access, private networking, passwordless SSH between nodes. Ten minutes per cluster. Clean slate every time.
 
 Antrieb is a remote MCP server. Nothing to install. Add it to your config and start provisioning.
 
 
 ## Quick Start
 
-Add this to your MCP client config (e.g. `.mcp.json` for Claude Desktop):
+Antrieb is a remote MCP server. Two ways to connect:
 
-```json
-{
-  "mcpServers": {
-    "antrieb": {
-      "type": "http",
-      "url": "https://antrieb.sh/mcp"
-    }
-  }
-}
-```
+### Claude Web / ChatGPT
 
-With an API key (get one at [antrieb.sh/dash](https://antrieb.sh/dash)):
+With web-based AI clients, add Antrieb as a custom connector.
+
+In **claude.ai**: go to **Settings → Connectors**, click **Add custom connector**. Enter:
+
+- **Name:** `Antrieb`
+- **URL:** `https://antrieb.sh/mcp`
+
+Click **Add**, then **Connect** and sign in. Back in your chat, try something like:
+
+> *Create a 3-node Kubernetes cluster, with node1 running both as control-plane and worker, and node2/node3 as pure workers. Install nginx with 3 pods and pod anti-affinity.*
+
+Walkthrough video: <https://youtu.be/8nts8ol-yeA>
+
+### MCP Clients (Claude Desktop, Claude Code, custom clients)
+
+Get a free API key at [antrieb.sh/dash](https://antrieb.sh/dash), then add this to your MCP client config (e.g. `.mcp.json` for Claude Desktop):
 
 ```json
 {
@@ -43,8 +50,6 @@ With an API key (get one at [antrieb.sh/dash](https://antrieb.sh/dash)):
 ```
 
 No local install, no dependencies, no Docker.
-
-> **Note:** You can try Antrieb without an API key, but there are [limitations](#what-are-the-limits-without-an-api-key).
 
 ## How It Works
 
@@ -112,23 +117,39 @@ Use `search` to discover all available images with full descriptions, or just sp
 
 ## Cluster Networking
 
-Every cluster gets:
+Networking is a first-class input to `provision`, not an afterthought. Every cluster is **L2-isolated from every other cluster** (even ones you own), with hostname resolution, passwordless SSH between its own nodes, and cluster-scoped env vars auto-injected into every `exec` call. What *varies* between runs is how nodes are wired and controlled by the optional `networks` and `nics` parameters on `provision`.
 
-- **Private IPs:** each node on a shared network
-- **Hostname resolution:** `node1`, `node2`, `node3` in `/etc/hosts`
-- **Passwordless SSH:** a per-cluster ed25519 keypair distributed to all nodes
-- **Firewall isolation:** clusters are L2-isolated from each other on the host
-- **Cluster env vars in every `exec`:** `NODE_NAME`, `NODE_INDEX`, `NODE_IP`, `CLUSTER_HOSTS` (multiline `IP NAME` for every node — drop-in for `/etc/hosts`), `CLUSTER_SSH_PUBKEY`, `CLUSTER_SSH_PRIVKEY`
-- **Internet access (default network):** nodes can reach the public internet on common ports (HTTP, HTTPS, DNS, SSH, package managers)
+There are two modes: the **default network** (flat, one-subnet, internet-reachable) and **declared networks** (first-class multi-subnet, multi-NIC topologies).
+
+### Every cluster (both modes)
+
+- **Hostname resolution:** `node1`, `node2`, `node3` in `/etc/hosts` on every node.
+- **Passwordless SSH:** a per-cluster ed25519 keypair distributed to all nodes. `ssh node2 hostname` just works.
+- **L2 isolation:** nodes across different clusters cannot reach each other, regardless of CIDR overlap or account.
+- **Env vars on every `exec`:** `NODE_NAME`, `NODE_INDEX`, `NODE_IP`, `CLUSTER_HOSTS` (multiline `IP NAME` — drop-in for `/etc/hosts`), `CLUSTER_SSH_PUBKEY`, `CLUSTER_SSH_PRIVKEY`.
 
 ```
 LLM: exec(node: "node1", command: "ssh node2 hostname")
 → { stdout: "node2" }
 ```
 
-### Custom Topology
+### Default network (when `networks` / `nics` are omitted)
 
-By default `provision` gives you one network with NAT egress and one NIC per node — fine for almost all work. When the topology itself is what you're testing (routers, isolation, multi-subnet, dual-homed nodes), declare it explicitly:
+```
+LLM: provision(cluster: ["ubuntu24.04 x3"])
+```
+
+You get:
+
+- One auto-allocated `/24` network named `default`, one NIC per node, DHCP-assigned IPs.
+- **Egress to the internet** via a curated port allowlist (HTTP, HTTPS, DNS, SSH, package managers). Arbitrary outbound is blocked.
+- No router VM, no firewall zones, no topology to configure. Nodes talk to each other and to the outside world.
+
+Use this whenever the *network* isn't what you're testing — application-level work, distro-specific configuration, Ansible playbooks, CI pipelines, Kubernetes-on-three-ubuntus.
+
+### Declared networks (multi-network, multi-NIC)
+
+Pass `networks` and `nics` when the topology itself is the thing under test: routers, firewalls, DMZs, isolated back-end subnets, dual-homed nodes, BGP meshes.
 
 ```
 LLM: provision(
@@ -138,23 +159,38 @@ LLM: provision(
     { name: "lan", cidr: "10.10.1.0/24", egress: false }
   ],
   nics: {
-    node1: [{ net: "wan" }, { net: "lan" }],
-    node2: [{ net: "lan" }],
-    node3: [{ net: "lan" }]
+    node1: [{ net: "wan" }, { net: "lan" }],   // vyos: dual-homed router
+    node2: [{ net: "lan" }],                    // ubuntu backend
+    node3: [{ net: "lan" }]                     // ubuntu backend
   }
 )
 ```
 
-Each network is its own isolated L2 segment with its own DHCP. CIDRs are auto-allocated when omitted. `egress: false` networks have no route to the internet.
+Contract:
 
-Frequently-used topology fragments can be **saved as network specs** and referenced from subsequent provisions as `@namespace/name`:
+- **Each declared network is its own L2 segment** with its own DHCP server and its own `/24`. CIDRs are auto-allocated when omitted; only `/24` is supported.
+- **`egress: true`** — internet-reachable on the default port allowlist. **`egress: false`** — traffic stays inside the network; no default route out.
+- **`dhcp: true`** (default) — the platform assigns IPs. **`dhcp: false`** — you assign IPs (use this when a router VM owns addressing or you need precise /31 links).
+- **NIC order matters.** Each entry in `nics.<node>` becomes `eth0`, `eth1`, ... in the listed order.
+- **`.1` of every DHCP-enabled network is reserved** for the platform bridge gateway. Router VMs should claim `.254` (or DHCP-client) — assigning `.1` to a VM causes ARP flip-flop.
+
+This unlocks serious networking work: VyOS / OPNsense firewalls with WAN/LAN zones, SONiC as an L2 switch or L3 router, OpenWrt with its `fw3` zone model, nginx behind a reverse-proxy LAN, BGP peering over /31 transit links, hairpin NAT, DNAT port-forwards. Full walkthroughs for each pattern live in the `@antrieb/*` runbook library.
+
+### Saved network specs
+
+Reusable topology fragments can be saved as network specs and referenced in subsequent provisions as `@namespace/name`:
 
 ```
 LLM: save(type: "network", name: "isolated-lan", egress: false, cidr: "10.50.0.0/24")
 → { fq_name: "yourorg/isolated-lan" }
 
-LLM: provision(cluster: [...], networks: ["@yourorg/isolated-lan", { name: "wan", egress: true }])
+LLM: provision(
+  cluster: [...],
+  networks: ["@yourorg/isolated-lan", { name: "wan", egress: true }]
+)
 ```
+
+Useful when the same LAN shape gets reused across many scenarios — e.g., an org's standard DMZ layout.
 
 ## Runbooks
 
@@ -180,6 +216,8 @@ Save any configured node as a reusable image:
 3. Call `save(type: "image", ...)` with the list of successful commands
 4. Antrieb generates `build-image.sh`, `startup.sh`, and a description
 5. The image is immediately available for future `provision` calls
+
+> **Note:** Saving custom images requires an API key.
 
 
 ## Try It Now
@@ -278,9 +316,9 @@ No. All interactions go through the LLM. Tell it what you want to do and it will
 
 Yes. All commands are logged and made available to you in your dashboard at [antrieb.sh/dash](https://antrieb.sh/dash). Command history requires an API key.
 
-**Which MCP clients does this work with?**
+**Which  clients does this work with?**
 
-Claude Desktop, Cursor, Windsurf, and Claude Code. If your client supports remote MCP servers over HTTP, it should work.
+Claude.ai, ChatGPT Web, Claude Desktop, Cursor, Windsurf, and Claude Code. If your client supports remote MCP servers over HTTP, it should work.
 
 **Does it work with models other than Claude?**
 
@@ -293,18 +331,6 @@ We target 2 minutes. The maximum is 5 minutes. Runbooks and network specs save i
 **Are custom images, runbooks, and network specs private?**
 
 Yes, private by default. To share within a team, go to your profile at [antrieb.sh/dash](https://antrieb.sh/dash) and set a namespace for your organization. From that point on, everything you save is accessible only to members of your org.
-
-### What are the limits without an API key?
-
-Anonymous users can try Antrieb without signing up, with these restrictions:
-
-- 1 node per cluster (no multi-node)
-- 3-minute cluster TTL (vs 10 minutes with a key)
-- No internet access from VMs (egress blocked)
-- No web dashboard access, no custom images, runbooks, or network specs
-- Rate limited per IP address
-
-These limits exist to prevent abuse while keeping the barrier to entry as low as possible. Get a free API key at [antrieb.sh/dash](https://antrieb.sh/dash) to remove them.
 
 **How does Antrieb prevent abuse?**
 
