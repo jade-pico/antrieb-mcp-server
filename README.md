@@ -29,8 +29,7 @@ Click **Add**, then **Connect** and sign in. Back in your chat, try something li
 
 > *Create a 3-node Kubernetes cluster, with node1 running both as control-plane and worker, and node2/node3 as pure workers. Install nginx with 3 pods and pod anti-affinity.*
 
-Walkthrough video: <https://youtu.be/8nts8oI-yeA>
-
+Walkthrough video: <https://youtu.be/8nts8ol-yeA>
 
 ### MCP Clients (Claude Desktop, Claude Code, custom clients)
 
@@ -206,7 +205,7 @@ Save one with `save(type: "runbook", name: "...", body: "...markdown...")`. Appl
 
 Runbooks complement images: an image captures **installed state** (packages, configs baked into a qcow2). A runbook captures **a workflow** (the ordered, multi-node actions that produce a working system). Prefer runbooks for anything with more than one node, because a single image can't express coordination between VMs.
 
-> **Note:** Saving runbooks, images, and network specs requires an API key. Everything saved lives in your org's namespace; the `antrieb/*` namespace is read-only defaults.
+Everything you save lives in your org's namespace; the `antrieb/*` namespace is read-only defaults.
 
 ## Custom Images
 
@@ -217,8 +216,6 @@ Save any configured node as a reusable image:
 3. Call `save(type: "image", ...)` with the list of successful commands
 4. Antrieb generates `build-image.sh`, `startup.sh`, and a description
 5. The image is immediately available for future `provision` calls
-
-> **Note:** Saving custom images requires an API key.
 
 
 ## Try It Now
@@ -315,7 +312,7 @@ No. All interactions go through the LLM. Tell it what you want to do and it will
 
 **What data is logged? Do you store my commands?**
 
-Yes. All commands are logged and made available to you in your dashboard at [antrieb.sh/dash](https://antrieb.sh/dash). Command history requires an API key.
+Yes. All commands are logged and made available to you in your dashboard at [antrieb.sh/dash](https://antrieb.sh/dash).
 
 **Which  clients does this work with?**
 
