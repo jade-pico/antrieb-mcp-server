@@ -5,7 +5,7 @@
 
 Say an LLM writes a VyOS NAT config, an OpenWrt firewall rule set, or a bash script to harden a fresh CentOS box. Where do you run it before it touches your environment? Antrieb gives the LLM a disposable multi-node cluster, with real VMs and real networking, to try what it just generated. Break it, reprovision, try again. No cleanup.
 
-Same OS and appliances your LLM-generated code will target in production: CentOS Stream, Ubuntu, Alma, Arch, Alpine, plus network appliances (VyOS, OPNsense, SONiC, OpenWrt). Multi-network topologies with per-NIC assignment. Not a container, not a microVM, not some unknown Linux — the same kernels and packages your real fleet runs.
+Same OS and appliances your LLM-generated code will target in production: CentOS Stream, Ubuntu, Alma, Arch, Alpine, VyOS, OPNsense, SONiC, OpenWrt. Multi-network topologies with per-NIC assignment. Not a container, not a microVM, not some unknown Linux — the same kernels and packages your real fleet runs.
 
 Root access, private networking, passwordless SSH between nodes. Ten minutes per cluster. Clean slate every time.
 
