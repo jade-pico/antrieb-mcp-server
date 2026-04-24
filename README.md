@@ -31,7 +31,7 @@ Click **Add**, then **Connect** and sign in. Back in your chat, try something li
 
 Walkthrough video: <https://youtu.be/8nts8ol-yeA>
 
-### MCP Clients (Claude Desktop, Claude Code, custom clients)
+### MCP Clients (Claude Desktop, Claude Code, Codex, custom clients)
 
 Get a free API key at [antrieb.sh/dash](https://antrieb.sh/dash), then add this to your MCP client config (e.g. `.mcp.json` for Claude Desktop):
 
