@@ -261,6 +261,16 @@ AI is moving into every layer of operations: cloud, on-prem, legacy systems, sec
 
 Antrieb is the validation layer between LLMs and Operations. Before an LLM touches your environment, it validates against the real thing first. Same OS, same packages, same behavior. Not a container. Not an approximation.
 
+**Why 10-minute clusters?**
+
+The 10-min TTL is not about compute limits. Clusters are cheap and fast to recreate. The TTL exists to prevent **state drift**, **structural drift**, and **cognitive drift**.
+- **State drift:** the LLM cannot rely on leftover files, partial fixes, or hidden changes from previous attempts. Each solution must work from a clean slate.
+- **Structural drift:** clusters are immutable after provisioning. Nodes and NICs cannot be added later, so the LLM must choose the topology upfront instead of continuously adding and removing component.
+- **Cognitive drift:** the reset prevents long debugging rabbit holes. The LLM must stop, assess progress, distill what it learned, and restart with a better plan.
+
+
+If a solution cannot be reproduced on a fresh cluster, it does not count.
+
 
 **Is it free?**
 
