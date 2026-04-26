@@ -263,13 +263,13 @@ Antrieb is the validation layer between LLMs and Operations. Before an LLM touch
 
 **Why 10-minute clusters?**
 
-The 10-min TTL is not about compute limits. Clusters are cheap and fast to recreate. The TTL exists to prevent **state drift**, **structural drift**, and **cognitive drift**.
+The 10-min TTL is not about compute limits. Clusters are cheap and fast to recreate. The TTL exists to prevent **state drift**, **structural drift**, and **cognitive drift**. It also serves abuse prevention and reproducibility enforcement measure.
+
 - **State drift:** the LLM cannot rely on leftover files, partial fixes, or hidden changes from previous attempts. Each solution must work from a clean slate.
 - **Structural drift:** clusters are immutable after provisioning. Nodes and NICs cannot be added later, so the LLM must choose the topology upfront instead of continuously adding and removing component.
 - **Cognitive drift:** the reset prevents long debugging rabbit holes. The LLM must stop, assess progress, distill what it learned, and restart with a better plan.
-
-
-If a solution cannot be reproduced on a fresh cluster, it does not count.
+- **Abuse prevention:** prevents long-running misuse such as scanning, bot activity, mining, or hosting
+- **Reproducibility:** If a solution cannot be reproduced on a fresh cluster, it does not count.
 
 
 **Is it free?**
