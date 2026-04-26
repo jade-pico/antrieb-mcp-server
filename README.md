@@ -58,8 +58,8 @@ Your LLM controls real VMs through 5 tools:
 ```
 1. provision  →  Spin up a cluster (sub-second per VM, declare custom networks and NICs)
 2. exec       →  Run commands on any node (cluster-scoped env vars auto-injected)
-3. save       →  Snapshot a node as an image, or save a runbook / network spec
-4. search     →  Discover images, runbooks, networks, or active clusters
+3. save       →  Snapshot a node as an image, or save a runbook
+4. search     →  Discover images, runbooks, or active clusters
 5. delete     →  Destroy a cluster, or decommission a saved artifact
 ```
 
@@ -176,21 +176,20 @@ Contract:
 
 This unlocks serious networking work: VyOS / OPNsense firewalls with WAN/LAN zones, SONiC as an L2 switch or L3 router, OpenWrt with its `fw3` zone model, nginx behind a reverse-proxy LAN, BGP peering over /31 transit links, hairpin NAT, DNAT port-forwards. Full walkthroughs for each pattern live in the `@antrieb/*` runbook library.
 
-### Saved network specs
+Reusable topologies should be captured in runbooks. Networks are declared inline during `provision`; if the same topology matters across scenarios, save the topology, commands, and verification steps together as a runbook.
 
-Reusable topology fragments can be saved as network specs and referenced in subsequent provisions as `@namespace/name`:
+## Example Network Labs
 
-```
-LLM: save(type: "network", name: "isolated-lan", egress: false, cidr: "10.50.0.0/24")
-→ { fq_name: "yourorg/isolated-lan" }
+The default `antrieb/*` runbook library includes verified scenarios such as:
 
-LLM: provision(
-  cluster: [...],
-  networks: ["@yourorg/isolated-lan", { name: "wan", egress: true }]
-)
-```
+- **VyOS:** zone-based DMZ firewall, DNAT port forwarding, DHCP/DNS forwarding, DHCP relay, dual-WAN failover, policy-based routing, eBGP, OSPF, VRRP, WireGuard, IPsec, VLAN trunking, QoS shaping.
+- **SONiC:** L2 bridging, L3 routing, VLAN segmentation, inter-VLAN routing with policy, BGP with FRR, OSPF, DHCP relay, LAG, SPAN mirroring, VXLAN L2 stretch.
+- **OPNsense:** DNAT port forwarding, three-zone DMZ, WireGuard road warrior, HTTPS load balancing with HAProxy.
+- **OpenWrt:** home-router NAT, guest-zone isolation, port forwarding, dnsmasq static DHCP and local DNS overrides.
+- **Service topologies:** nginx reverse proxy, Ansible-managed nginx backends with HAProxy load balancing and failover drills.
 
-Useful when the same LAN shape gets reused across many scenarios — e.g., an org's standard DMZ layout.
+Runbooks are written as executable proofs: topology, commands, expected packet behavior, and verification steps using tools like `tcpdump`, route tables, conntrack, BGP/OSPF state, DHCP traces, VPN handshakes, and failover tests.
+
 
 ## Runbooks
 
@@ -201,7 +200,7 @@ Runbooks are the way to preserve non-trivial multi-node scenarios — "set up HA
 - `## Steps` — numbered; prose explains *why*, fenced shell blocks are the actual commands, each annotated with the node it targets
 - `## Verify` — how to confirm success
 
-Save one with `save(type: "runbook", name: "...", body: "...markdown...")`. Apply one by running `search(type: "runbook", fq_name: "namespace/name")` to fetch the body, then issuing the `exec` calls it describes.
+Save one with `save(type: "runbook", name: "...", body: "...markdown...")`. Fetch the body with `search(type: "runbook", fq_name: "namespace/name")`.
 
 Runbooks complement images: an image captures **installed state** (packages, configs baked into a qcow2). A runbook captures **a workflow** (the ordered, multi-node actions that produce a working system). Prefer runbooks for anything with more than one node, because a single image can't express coordination between VMs.
 
@@ -259,18 +258,33 @@ curl -s -X POST https://antrieb.sh/mcp \
 
 AI is moving into every layer of operations: cloud, on-prem, legacy systems, security, networking, and edge. Misconfiguring a cloud server is painful. Misconfiguring ten thousand edge devices in the field is catastrophic.
 
-Antrieb is the validation layer between LLMs and Operations. Before an LLM touches your environment, it validates against the real thing first. Same OS, same packages, same behavior. Not a container. Not an approximation.
+Antrieb is the validation layer between LLMs and Operations. Before AI-generated infrastructure code can touch your environment, it must prove itself in a real, disposable environment that matches the target architecture closely enough to expose operational failure. Same OS, same packages, same behavior. Not a container. Not an approximation. Antrieb is an auditable proving ground for AI-generated operational change.
 
 **Why 10-minute clusters?**
 
-The 10-min TTL is not about compute limits. Clusters are cheap and fast to recreate. The TTL exists to prevent **state drift**, **structural drift**, and **cognitive drift**. It also serves abuse prevention and reproducibility enforcement measure.
+The 10-minute TTL is not primarily about compute limits. Clusters are fast to recreate. The TTL exists to make validation reproducible and to keep LLMs from accumulating accidental state.
+
+Don't preserve the lab. Preserve the learning.
 
 - **State drift:** the LLM cannot rely on leftover files, partial fixes, or hidden changes from previous attempts. Each solution must work from a clean slate.
-- **Structural drift:** clusters are immutable after provisioning. Nodes and NICs cannot be added later, so the LLM must choose the topology upfront instead of continuously adding and removing component.
-- **Cognitive drift:** the reset prevents long debugging rabbit holes. The LLM must stop, assess progress, distill what it learned, and restart with a better plan.
-- **Abuse prevention:** prevents long-running misuse such as scanning, bot activity, mining, or hosting
 - **Reproducibility:** If a solution cannot be reproduced on a fresh cluster, it does not count.
+- **Cognitive drift:** long-lived clusters let an LLM overcommit to its first plan. It may keep patching a broken approach because the environment still exists and contains partial progress. A hard TTL creates a forced checkpoint: the LLM must summarize what it learned, discard accidental state, choose a cleaner command sequence, and reproduce the result from scratch.
+- **Abuse prevention:** the TTL also prevents long-running misuse such as scanning, bot activity, mining, or hosting.
 
+**Why are clusters immutable?**
+
+A cluster's architecture is fixed at provision time: images, node count, networks, and NIC assignments. If the LLM needs a different topology, it should provision a new cluster with a better design.
+
+This prevents **architectural drift**. Without immutability, an LLM can keep adding nodes, networks, routes, and exceptions until the lab no longer matches the system it was supposed to validate. The result may "work," but only because the environment evolved around the mistakes.
+
+Immutability forces the topology to be an explicit hypothesis:
+
+1. Choose the architecture.
+2. Provision it.
+3. Test the implementation.
+4. If the architecture was wrong, discard it and provision a cleaner one.
+
+That keeps the validation target understandable, repeatable, and worth saving as a runbook.
 
 **Is it free?**
 
@@ -334,9 +348,9 @@ Yes. Antrieb is just an MCP server; the intelligence comes entirely from your LL
 
 **How long does a saved image take to be ready?**
 
-We target 2 minutes. The maximum is 5 minutes. Runbooks and network specs save instantly — they're metadata, not qcow2 images.
+We target 2 minutes. The maximum is 5 minutes. Runbooks save instantly — they're metadata, not qcow2 images.
 
-**Are custom images, runbooks, and network specs private?**
+**Are custom images and runbooks private?**
 
 Yes, private by default. To share within a team, go to your profile at [antrieb.sh/dash](https://antrieb.sh/dash) and set a namespace for your organization. From that point on, everything you save is accessible only to members of your org.
 
@@ -392,16 +406,13 @@ Persist an artifact. Saved artifacts live in your org's namespace and are immedi
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
-| `type` | string | no | `"image"` (default), `"runbook"`, or `"network"` |
-| `name` | string | yes | Lowercase-and-hyphens identifier (becomes `antrieb:<name>:v1` for images, `@<namespace>/<name>` for runbooks/networks) |
+| `type` | string | no | `"image"` (default) or `"runbook"` |
+| `name` | string | yes | Lowercase-and-hyphens identifier (becomes `antrieb:<name>:v1` for images, `@<namespace>/<name>` for runbooks) |
 | `description` | string | no | Short human description used by search (strongly recommended for runbooks — it's what the LLM sees in browse mode) |
 | `session_id` | string | if `type=image` | Session containing the node to snapshot |
 | `node` | string | if `type=image` | Node to save |
 | `commands` | array | if `type=image` | Ordered list of successful commands executed on the node |
 | `body` | string | if `type=runbook` | Markdown document (see [Runbooks](#runbooks) for structure) |
-| `cidr` | string | if `type=network` | Optional `/24` CIDR like `"10.10.1.0/24"`. Auto-allocated if omitted. |
-| `egress` | boolean | if `type=network` | `true` = NAT to internet, `false` = isolated |
-| `dhcp` | boolean | if `type=network` | `true` = framework DHCP, `false` = bring your own |
 
 ### `search`
 
@@ -409,9 +420,9 @@ Browse catalogs, or fetch a specific artifact. Two modes: **browse** (keywords o
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
-| `type` | string | no | `"image"` (default), `"cluster"`, `"runbook"`, or `"network"` |
+| `type` | string | no | `"image"` (default), `"cluster"`, or `"runbook"` |
 | `keywords` | string | no | Full-text filter on name, description, and fq_name |
-| `fq_name` | string | no | Fetch a specific runbook/network/image by fully-qualified name. For runbooks, returns the full markdown body. |
+| `fq_name` | string | no | Fetch a specific runbook or image by fully-qualified name. For runbooks, returns the full markdown body. |
 | `limit` | number | no | Max results (default 20, max 100) |
 
 ### `delete`
@@ -420,7 +431,7 @@ Destroy a cluster or decommission a saved artifact. `antrieb/*` defaults are nev
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
-| `type` | string | yes | `"cluster"`, `"image"`, `"runbook"`, or `"network"` |
+| `type` | string | yes | `"cluster"`, `"image"`, or `"runbook"` |
 | `name` | string | yes | `session_id` for clusters; short name or `namespace/short` fq_name for everything else |
 
 ## License
