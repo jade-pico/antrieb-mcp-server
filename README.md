@@ -1,3 +1,5 @@
+[![MseeP.ai Security Assessment Badge](https://mseep.net/pr/jade-pico-antrieb-mcp-server-badge.png)](https://mseep.ai/app/jade-pico-antrieb-mcp-server)
+
 # Antrieb MCP Server
 
 **Instant disposable clusters for LLM-generated networks and infra.**
