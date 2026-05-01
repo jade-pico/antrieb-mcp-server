@@ -5,15 +5,14 @@
 
 Say an LLM writes a VyOS NAT config, an OpenWrt firewall rule set, or a bash script to harden a CentOS cluster. Where do you run it before it touches your environment? Antrieb gives the LLM a disposable multi-node cluster, with real VMs and real networking, to try what it generates. Break it, quickly reprovision, try again. No cleanup.
 
-Same OS and appliances your LLM-generated code will target in production: CentOS Stream, Ubuntu, Alma, Arch, Alpine, VyOS, OPNsense, SONiC, OpenWrt. Multi-network topologies with per-NIC assignment. Not a container, not a microVM, not some unknown Linux — the same kernels and packages your real fleet runs.
+Same OS and appliances your LLM-generated code will target in production: CentOS Stream, Ubuntu, Debian, Alma, Alpine, VyOS, OPNsense, SONiC, OpenWrt. Multi-network topologies with per-NIC assignment. Not a container, not a microVM, not some unknown Linux — the same kernels and packages your real fleet runs.
 
-Root access, private networking, passwordless SSH between nodes. Ten minutes per cluster. Clean slate every time. Instant clusters that change the economic of being wrong.
+Root access, private networking, passwordless SSH between nodes. Ten minutes per cluster. Clean slate every time. Instant clusters that change the economics of being wrong for LLMs.
 
-Antrieb is a remote MCP server. Nothing to install. Add it to your config and start provisioning. 
 
 ## Quick Start
 
-Antrieb is a remote MCP server. Two ways to connect:
+Antrieb is a remote MCP server. Nothing to install. Add it to your config and start provisioning. 
 
 ### Claude Web / ChatGPT
 
@@ -34,6 +33,9 @@ Walkthrough video: <https://youtu.be/8nts8ol-yeA>
 
 Get a free API key at [antrieb.sh/dash](https://antrieb.sh/dash), then add this to your MCP client config (e.g. `.mcp.json` for Claude Desktop):
 
+#### Claude Code
+Put this JSON in the current folder in a file called `.mcp.json`. Claude Code will find it automatically.
+
 ```json
 {
   "mcpServers": {
@@ -47,7 +49,14 @@ Get a free API key at [antrieb.sh/dash](https://antrieb.sh/dash), then add this 
   }
 }
 ```
+#### Codex
+Put this TOML content in `./.codex/config.toml`. Then set the `ANTRIEB_TOKEN` environment variable with your API key before launching Codex.
 
+```toml
+ [mcp_servers.antrieb]
+  url = "https://antrieb.sh/mcp"
+  bearer_token_env_var = "ANTRIEB_TOKEN"
+```
 No local install, no dependencies, no Docker.
 
 ## How It Works
@@ -94,11 +103,12 @@ LLM: delete(type: "cluster", name: "abc12")
 |-----|-------------|
 | `ubuntu24.04` | Ubuntu 24.04 LTS: apt, bash, Python 3, curl, wget, jq |
 | `almalinux9` | AlmaLinux 9 (RHEL-compatible): dnf, bash, Python 3 |
-| `archlinux` | Arch Linux (rolling): pacman, bash, Python 3 |
 | `centos-stream10` | CentOS Stream 10: dnf, bash, Python 3 |
+| `debian13` | Debian 13: apt, bash, Python 3, curl, wget, jq |
 | `alpine` | Alpine Linux 3.23: apk, minimal, musl libc |
 | `sonic` | SONiC: open-source network OS for data-center switches |
 | `vyos` | VyOS: Linux-based router / firewall with a unified CLI |
+| `openwrt` | OpenWrt 25.12: Linux-based firmware with UCI configuration |
 | `opnsense` | OPNsense: FreeBSD-based firewall / router with web UI |
 
 ### Stack Images
@@ -108,9 +118,15 @@ Stack images are custom images created by enriching the base images with additio
 | ANI | Description |
 |-----|-------------|
 | `terraform-aws` | Terraform with real AWS (free-tier, Antrieb's credentials, Vault-brokered STS) |
-| `cloudformation-aws` | CloudFormation with real AWS |
 | `ansible-controller` | Ansible control node with collections |
 | `podman` | Podman, Buildah, Skopeo (rootless, Docker-API-compatible) |
+| `mongodb` | MongoDB server image for database provisioning and integration tests |
+| `postgresql` | PostgreSQL server image for SQL database tests |
+| `vault` | HashiCorp Vault image for secrets workflows and Terraform-backed credentials |
+| `mariadb` | MariaDB server image for MySQL-compatible database tests |
+| `nginx` | NGINX image for web server and reverse-proxy scenarios |
+| `helm-k3s` | K3s with Helm for lightweight Kubernetes scenarios |
+| `asterisk-pbx` | Asterisk PBX image for SIP and telephony scenarios |
 
 Use `search` to discover all available images with full descriptions, or just specify a distro name and Antrieb picks the right one.
 
@@ -199,7 +215,7 @@ Runbooks are the way to preserve non-trivial multi-node scenarios, capturing eve
 - `## Steps` — numbered; prose explains *why*, fenced shell blocks are the actual commands, each annotated with the node it targets
 - `## Verify` — how to confirm success
 
-Save one with `save(type: "runbook", name: "...", body: "...markdown...")`. Fetch the body with `search(type: "runbook", fq_name: "namespace/name")`.
+Save one with `save(type: "runbook", session_id: "...", name: "...", body: "...markdown...")`. The `session_id` must point to a session whose exec history demonstrates the runbook. Fetch the body with `search(type: "runbook", fq_name: "namespace/name")`.
 
 Runbooks complement images: an image captures **installed state** (packages, configs baked into a qcow2). A runbook captures **a workflow** (the ordered, multi-node actions that produce a working system). Prefer runbooks for anything with more than one node, because a single image can't express coordination between VMs.
 
@@ -218,11 +234,12 @@ Save any configured node as a reusable image:
 
 ## Try It Now
 
-No MCP client needed. Just `curl`:
+No MCP client needed. Use your API key with `curl`:
 
 ```bash
 # 1. Provision a single Ubuntu node
 curl -s -X POST https://antrieb.sh/mcp \
+  -H "Authorization: Bearer ant_YOUR_KEY" \
   -H "Content-Type: application/json" \
   -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"provision","arguments":{"cluster":["ubuntu24.04"]}}}'
 ```
@@ -234,6 +251,7 @@ curl -s -X POST https://antrieb.sh/mcp \
 ```bash
 # 2. Run a command on the node
 curl -s -X POST https://antrieb.sh/mcp \
+  -H "Authorization: Bearer ant_YOUR_KEY" \
   -H "Content-Type: application/json" \
   -d '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"exec","arguments":{"session_id":"abc12...","node":"node1","command":"cat /etc/os-release | head -3"}}}'
 ```
@@ -245,11 +263,12 @@ curl -s -X POST https://antrieb.sh/mcp \
 ```bash
 # 3. Tear it down
 curl -s -X POST https://antrieb.sh/mcp \
+  -H "Authorization: Bearer ant_YOUR_KEY" \
   -H "Content-Type: application/json" \
   -d '{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"delete","arguments":{"type":"cluster","name":"abc12..."}}}'
 ```
 
-> Replace `abc12...` with the `session_id` from step 1. Add `-H "Authorization: Bearer ant_YOUR_KEY"` to use your API key.
+> Replace `ant_YOUR_KEY` with your API key and `abc12...` with the `session_id` from step 1.
 
 ## FAQ
 
@@ -287,11 +306,11 @@ That keeps the validation target understandable, repeatable, and worth saving as
 
 **Is it free?**
 
-Yes.
+Yes. Get a free API key at [antrieb.sh/dash](https://antrieb.sh/dash).
 
 **What are the resource specs of each VM?**
 
-Each VM gets 4 vCPUs, 2 GB of RAM, and 20 GB of disk.
+Most Linux base and stack images get 4 vCPUs, 2 GB of RAM, and 20 GB of disk. Network appliances and smaller edge images can differ; `search(type: "image")` returns the current specs and full image descriptions.
 
 **How many nodes can a cluster have?**
 
@@ -307,15 +326,15 @@ Yes, by default. Every node on the default network has direct internet access, t
 
 **How long do clusters last?**
 
-Each cluster has a hard TTL of 10 minutes. After that it is fully discarded: compute, networking, everything. TTLs cannot be extended. If you ever get the same IP address as a previous session, the VM is completely fresh.
+Authenticated clusters have a hard TTL of 10 minutes. After that they are fully discarded: compute, networking, everything. TTLs cannot be extended. If you ever get the same IP address as a previous session, the VM is completely fresh.
 
 **What happens to a cluster when my chat session ends?**
 
-The cluster is destroyed and the IP addresses are reused for future VMs. Your commands are logged separately and remain accessible in your dashboard.
+The cluster lives until you delete it or its TTL expires. IP addresses can then be reused for future VMs. Your commands are logged separately and remain accessible in your dashboard.
 
 **Are VMs truly ephemeral? Could I ever get a dirty node?**
 
-Yes, fully ephemeral. VMs are never saved or snapshotted between sessions. Once you're done, they are destroyed.  Every node you provision is completely fresh.
+Yes, fully ephemeral. Session VMs are never reused between sessions. Once you're done or the TTL expires, they are destroyed. Every node you provision is completely fresh.
 
 **Who can see the commands running on my VMs?**
 
@@ -337,7 +356,7 @@ No. All interactions go through the LLM. Tell it what you want to do and it will
 
 Yes. All commands are logged and made available to you in your dashboard at [antrieb.sh/dash](https://antrieb.sh/dash).
 
-**Which  clients does this work with?**
+**Which clients does this work with?**
 
 Claude.ai, ChatGPT Web, Claude Desktop, Cursor, Windsurf, and Claude Code. If your client supports remote MCP servers over HTTP, it should work.
 
@@ -408,20 +427,20 @@ Persist an artifact. Saved artifacts live in your org's namespace and are immedi
 | `type` | string | no | `"image"` (default) or `"runbook"` |
 | `name` | string | yes | Lowercase-and-hyphens identifier (becomes `antrieb:<name>:v1` for images, `@<namespace>/<name>` for runbooks) |
 | `description` | string | no | Short human description used by search (strongly recommended for runbooks — it's what the LLM sees in browse mode) |
-| `session_id` | string | if `type=image` | Session containing the node to snapshot |
+| `session_id` | string | if `type=image` or `type=runbook` | For images, the session containing the node to snapshot. For runbooks, the session whose exec history demonstrates the scenario. |
 | `node` | string | if `type=image` | Node to save |
 | `commands` | array | if `type=image` | Ordered list of successful commands executed on the node |
 | `body` | string | if `type=runbook` | Markdown document (see [Runbooks](#runbooks) for structure) |
 
 ### `search`
 
-Browse catalogs, or fetch a specific artifact. Two modes: **browse** (keywords or no params → list of metadata) and **fetch** (`fq_name=namespace/name` → single artifact including full body, required for runbooks before applying them).
+Browse catalogs, or fetch a specific runbook. Two modes: **browse** (keywords or no params → list of metadata) and **fetch** (`type=runbook`, `fq_name=namespace/name` → single runbook including full body, required before applying it).
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
 | `type` | string | no | `"image"` (default), `"cluster"`, or `"runbook"` |
 | `keywords` | string | no | Full-text filter on name, description, and fq_name |
-| `fq_name` | string | no | Fetch a specific runbook or image by fully-qualified name. For runbooks, returns the full markdown body. |
+| `fq_name` | string | no | Fetch a specific runbook by fully-qualified name and return its full markdown body. Ignored for images and clusters. |
 | `limit` | number | no | Max results (default 20, max 100) |
 
 ### `delete`
