@@ -7,10 +7,9 @@ Say an LLM writes a VyOS NAT config, an OpenWrt firewall rule set, or a bash scr
 
 Same OS and appliances your LLM-generated code will target in production: CentOS Stream, Ubuntu, Alma, Arch, Alpine, VyOS, OPNsense, SONiC, OpenWrt. Multi-network topologies with per-NIC assignment. Not a container, not a microVM, not some unknown Linux — the same kernels and packages your real fleet runs.
 
-Root access, private networking, passwordless SSH between nodes. Ten minutes per cluster. Clean slate every time.
+Root access, private networking, passwordless SSH between nodes. Ten minutes per cluster. Clean slate every time. Instant clusters that change the economic of being wrong.
 
-Antrieb is a remote MCP server. Nothing to install. Add it to your config and start provisioning.
-
+Antrieb is a remote MCP server. Nothing to install. Add it to your config and start provisioning. 
 
 ## Quick Start
 
@@ -193,7 +192,7 @@ Runbooks are written as executable proofs: topology, commands, expected packet b
 
 ## Runbooks
 
-Runbooks are the way to preserve non-trivial multi-node scenarios — "set up HA Postgres with a pgbouncer frontend", "three-node VyOS mesh with BGP", "ansible controller managing two targets". They're markdown documents with structure the LLM can execute:
+Runbooks are the way to preserve non-trivial multi-node scenarios, capturing even little gotchas that may be too small to blog about.  They're markdown documents with structure the LLM can execute:
 
 - `## Topology required` — cluster shape this applies to (images, networks, NICs)
 - `## Variables` — placeholders like `<LAN_SUBNET>` callers substitute at apply time
